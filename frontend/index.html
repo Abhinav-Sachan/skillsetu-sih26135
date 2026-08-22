@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSetu | AI Longitudinal Skilling Outcomes & Impact Tracking (SIH26135)</title>
+    <!-- Tailwind CSS for rapid, clean styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for interactive analytics dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom External CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a8a', // Deep Government Indigo/Blue
+                        secondary: '#0f766e', // Teal accent
+                        surface: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-slate-800 font-sans antialiased selection:bg-teal-500 selection:text-white">
+
+    <!-- Top Notice Bar (SIH Context) -->
+    <div class="bg-primary text-white text-xs py-2 px-4 text-center font-medium tracking-wide">
+        Smart India Hackathon 2026 &bull; Problem Statement SIH26135 &bull; Govt. of Maharashtra (Smart Education Theme)
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    S
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight text-primary">SkillSetu</span>
+                    <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full font-semibold">Live Demo</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#problem" class="hover:text-primary transition">The Problem</a>
+                <a href="#how-it-works" class="hover:text-primary transition">How It Works</a>
+                <a href="#registration" class="hover:text-primary transition">Register Trainee</a>
+                <a href="#ai-demo" class="hover:text-primary transition">AI Reasoning</a>
+                <a href="#dashboard" class="hover:text-primary transition">Analytics Dashboard</a>
+                <a href="#privacy" class="hover:text-primary transition">Trust & Privacy</a>
+            </nav>
+            <div>
+                <a href="#dashboard" class="bg-secondary hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                    View Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 1. Hero / Landing Section -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-primary to-slate-900 text-white py-20 lg:py-28">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-6">
+                <span>⚡ Built for SIH 2026</span>
+                <span>&bull;</span>
+                <span>Transforming Skilling Analytics</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+                Turning "Certified" Into <span class="text-teal-400">Employed</span>.
+            </h1>
+            <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal">
+                An AI-powered longitudinal tracking engine built for the Government of Maharashtra. Track post-training outcomes, eliminate blind spots, and prove public investment impact.
+            </p>
+            <div class="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <a href="#dashboard" class="w-full sm:w-auto bg-teal-600 hover:bg-teal-500 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition">
+                    Explore Analytics Dashboard
+                </a>
+                <a href="#registration" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl transition">
+                    Register a Trainee &rarr;
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. The Problem Section -->
+    <section id="problem" class="py-16 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">The Blind Spot in Public Skilling</h2>
+                <h3 class="text-3xl font-bold text-slate-900">Where do trainees go after graduation?</h3>
+                <p class="mt-3 text-slate-600">Current state systems record enrolment and certification efficiently, but accountability evaporates the day training ends.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-surface p-6 rounded-2xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="text-3xl font-extrabold text-red-500 mb-2">84%</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Untracked Post-Training</h4>
+                    <p class="text-sm text-slate-600">Programs capture completion rates successfully, but completely lose visibility at 30, 90, and 180 days out.</p>
+                </div>
+                <div class="bg-surface p-6 rounded-2xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="text-3xl font-extrabold text-amber-500 mb-2">Disconnected</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Siloed Data Formats</h4>
+                    <p class="text-sm text-slate-600">Every vocational partner reports in custom spreadsheets, making cross-district comparisons and policy audits nearly impossible.</p>
+                </div>
+                <div class="bg-surface p-6 rounded-2xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="text-3xl font-extrabold text-primary mb-2">Zero Insight</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Why Did They Drop Out?</h4>
+                    <p class="text-sm text-slate-600">When trainees remain unemployed, decision-makers cannot determine if the bottleneck is local skill mismatch, wage offers, or commuting distance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. How SkillSetu Works (Product Flow) -->
+    <section id="how-it-works" class="py-16 bg-slate-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">End-to-End Architecture</h2>
+                <h3 class="text-3xl font-bold text-slate-900">How SkillSetu Closes the Loop</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-primary font-bold flex items-center justify-center mb-4">1</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Consent Registration</h4>
+                    <p class="text-sm text-slate-600">Trainee registers with verified district & batch info, opting into privacy-compliant tracking.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-primary font-bold flex items-center justify-center mb-4">2</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Longitudinal Check-ins</h4>
+                    <p class="text-sm text-slate-600">Automated multi-channel touchpoints (SMS/IVR via MSG91) at 30, 90, and 180 days post-completion.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-800 font-bold flex items-center justify-center mb-4">3</div>
+                    <h4 class="font-bold text-slate-900 mb-1">AI Reasoning Engine</h4>
+                    <p class="text-sm text-slate-600">Groq API analyzes unstructured feedback from job-seekers to classify reasons for non-placement instantly.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative civic-card">
+                    <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-800 font-bold flex items-center justify-center mb-4">4</div>
+                    <h4 class="font-bold text-slate-900 mb-1">Actionable Insights</h4>
+                    <p class="text-sm text-slate-600">Policymakers view aggregated district dashboards with plain-language automated curriculum recommendations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Interactive Grid Section -->
+    <main class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+
+        <!-- 4. Live Demo: Trainee Registration Form -->
+        <section id="registration" class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div class="max-w-2xl mx-auto">
+                <div class="mb-8 text-center">
+                    <span class="text-xs font-semibold px-3 py-1 bg-blue-50 text-primary rounded-full">Interactive Demo #1</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Consent-Based Trainee Registration</h3>
+                    <p class="text-sm text-slate-600 mt-1">Simulates secure backend entry (FastAPI + PostgreSQL) with explicit consent compliance.</p>
+                </div>
+
+                <form id="registrationForm" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Full Name</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. Rahul Patil">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Phone Number</label>
+                            <input type="tel" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Skilling Programme</label>
+                            <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                                <option>CNC Machine Operator (PMKVY)</option>
+                                <option>Full Stack Web Developer (MSDE)</option>
+                                <option>Healthcare General Duty Assistant</option>
+                                <option>Automotive Service Technician</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">District (Maharashtra)</label>
+                            <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                                <option>Pune</option>
+                                <option>Nagpur</option>
+                                <option>Thane</option>
+                                <option>Aurangabad</option>
+                                <option>Nashik</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
+                        <label class="flex items-start space-x-3 cursor-pointer">
+                            <input type="checkbox" id="consentToggle" required class="mt-1 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded">
+                            <span class="text-xs text-slate-700 leading-relaxed">
+                                <strong class="text-slate-900">Explicit Consent Protocol:</strong> I hereby give explicit consent to SkillSetu and authorized state training partners to contact me via SMS/IVR at 30, 90, and 180 days post-completion for employment outcome tracking. Data is protected under state privacy guidelines.
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-900 text-white font-semibold py-3 rounded-lg shadow transition text-sm">
+                        Register Trainee & Initialize Longitudinal Record
+                    </button>
+                </form>
+
+                <!-- Success Alert (Hidden by default) -->
+                <div id="regSuccess" class="hidden mt-6 bg-teal-50 border border-teal-200 text-teal-800 p-4 rounded-xl text-sm">
+                    <p class="font-bold flex items-center gap-2">
+                        <span>✅ Record Created Successfully!</span>
+                    </p>
+                    <p class="mt-1">Backend connection simulated: Trainee registered in PostgreSQL. 30-day follow-up trigger queued in MSG91 messaging worker queue.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Live Demo: Follow-Up + AI Reasoning -->
+        <section id="ai-demo" class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div class="max-w-2xl mx-auto">
+                <div class="mb-8 text-center">
+                    <span class="text-xs font-semibold px-3 py-1 bg-teal-50 text-teal-800 rounded-full">Interactive Demo #2</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Longitudinal Follow-Up & Groq AI Reasoning</h3>
+                    <p class="text-sm text-slate-600 mt-1">Simulates a trainee response check-in where an LLM analyzes free-text feedback to categorize non-placement reasons.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Select Check-in Milestone</label>
+                        <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                            <option>90 Days Post-Training Check-in</option>
+                            <option>30 Days Post-Training Check-in</option>
+                            <option>180 Days Post-Training Check-in</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Current Employment Status Reported</label>
+                        <select id="employmentStatus" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                            <option value="employed">Employed (Salaried / Wage)</option>
+                            <option value="self-employed">Self-Employed / Entrepreneur</option>
+                            <option value="searching" selected>Still Searching for Work</option>
+                        </select>
+                    </div>
+
+                    <div id="reasonContainer">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Trainee Feedback / Reason (Voice note transcription or SMS reply)</label>
+                        <textarea id="traineeFeedback" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="Type or simulate speech transcription... e.g., 'Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.'">Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.</textarea>
+                    </div>
+
+                    <button id="runAiBtn" class="w-full bg-secondary hover:bg-teal-800 text-white font-semibold py-3 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
+                        <span>Run Groq LLM Reasoning Analysis</span>
+                    </button>
+                </div>
+
+                <!-- AI Output Card (Hidden initially, toggled with loading state) -->
+                <div id="aiLoading" class="hidden mt-6 p-6 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mb-2"></div>
+                    <p class="text-xs text-slate-600 font-medium">Analyzing feedback against district job market parameters via Groq API...</p>
+                </div>
+
+                <div id="aiResultCard" class="hidden mt-6 p-6 bg-teal-50 border border-teal-200 rounded-xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-800 bg-teal-200 px-2.5 py-1 rounded">AI Classification Output</span>
+                        <span class="text-xs text-slate-500 font-mono">Model: llama-3.3-70b-versatile</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-700">
+                        <p><strong>Primary Bottleneck:</strong> <span id="aiCategory" class="text-red-600 font-semibold">Skill Mismatch & Wage Discrepancy</span></p>
+                        <p><strong>Confidence Score:</strong> 94.2%</p>
+                        <p><strong>Recommended Policy Action:</strong> <span id="aiAction" class="text-slate-900 font-medium">Update Pune CNC curriculum to include 15 hours of automated calibration modules; benchmark partner stipends against district wage floors.</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Analytics Dashboard -->
+        <section id="dashboard" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-slate-200 pb-6 gap-4">
+                <div>
+                    <span class="text-xs font-semibold px-3 py-1 bg-blue-50 text-primary rounded-full">Interactive Demo #3</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Maharashtra Skilling Command Center</h3>
+                    <p class="text-sm text-slate-600">Aggregated longitudinal metrics across districts and training providers.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select id="districtFilter" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none">
+                        <option value="all">All Districts (Maharashtra)</option>
+                        <option value="pune">Pune</option>
+                        <option value="nagpur">Nagpur</option>
+                        <option value="thane">Thane</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-surface p-5 rounded-xl border border-slate-200">
+                    <p class="text-xs font-bold uppercase text-slate-500">Total Registered</p>
+                    <h4 class="text-2xl font-extrabold text-slate-900 mt-1">42,850</h4>
+                    <span class="text-xs text-teal-600 font-medium mt-1 inline-block">+12% vs last quarter</span>
+                </div>
+                <div class="bg-surface p-5 rounded-xl border border-slate-200">
+                    <p class="text-xs font-bold uppercase text-slate-500">Employment Conversion</p>
+                    <h4 class="text-2xl font-extrabold text-slate-900 mt-1">68.4%</h4>
+                    <span class="text-xs text-teal-600 font-medium mt-1 inline-block">Verified at 90 days</span>
+                </div>
+                <div class="bg-surface p-5 rounded-xl border border-slate-200">
+                    <p class="text-xs font-bold uppercase text-slate-500">Active Consent Rate</p>
+                    <h4 class="text-2xl font-extrabold text-slate-900 mt-1">91.2%</h4>
+                    <span class="text-xs text-slate-500 font-medium mt-1 inline-block">Privacy compliant</span>
+                </div>
+                <div class="bg-surface p-5 rounded-xl border border-slate-200">
+                    <p class="text-xs font-bold uppercase text-slate-500">Avg Starting Wage</p>
+                    <h4 class="text-2xl font-extrabold text-slate-900 mt-1">₹18,450 /mo</h4>
+                    <span class="text-xs text-teal-600 font-medium mt-1 inline-block">+₹1,200 YoY</span>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Bar Chart -->
+                <div class="lg:col-span-2 bg-surface p-6 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-4 text-sm">Employment Conversion Rate by Cohort & District</h4>
+                    <div class="h-64 relative">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                </div>
+                <!-- Donut Chart -->
+                <div class="bg-surface p-6 rounded-xl border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-4 text-sm">90-Day Outcome Breakdown</h4>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="outcomeDonut"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Policy Insight Banner -->
+            <div class="bg-gradient-to-r from-blue-900 to-primary text-white p-6 rounded-xl shadow-md mb-8">
+                <div class="flex items-center gap-2 text-teal-300 text-xs font-bold uppercase tracking-wider mb-2">
+                    <span>✨ Automated Policy Insight Summary</span>
+                </div>
+                <p id="policyInsightText" class="text-sm sm:text-base leading-relaxed text-slate-100">
+                    "Analysis of 4,200 tracked trainees in Pune shows a <strong>38% skill-mismatch rate</strong> in CNC operator batches due to legacy machinery in partner training centers. Recommended action: Prioritize 2026 equipment upgrade grants for Pune vocational partners."
+                </p>
+            </div>
+
+            <!-- Filterable Data Table -->
+            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 uppercase text-xs font-bold">
+                            <th class="p-4 border-b">Programme Name</th>
+                            <th class="p-4 border-b">District</th>
+                            <th class="p-4 border-b">Enrolled</th>
+                            <th class="p-4 border-b">Employed %</th>
+                            <th class="p-4 border-b">Primary Attrition Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="providerTableBody" class="divide-y divide-slate-200 text-slate-700">
+                        <tr>
+                            <td class="p-4 font-medium text-slate-900">CNC Machine Operator</td>
+                            <td class="p-4">Pune</td>
+                            <td class="p-4">1,420</td>
+                            <td class="p-4 text-teal-700 font-semibold">58%</td>
+                            <td class="p-4 text-slate-500">Skill Mismatch (Advanced Automation)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-medium text-slate-900">Full Stack Web Developer</td>
+                            <td class="p-4">Nagpur</td>
+                            <td class="p-4">980</td>
+                            <td class="p-4 text-teal-700 font-semibold">76%</td>
+                            <td class="p-4 text-slate-500">Wage Mismatch (Remote vs Local)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-medium text-slate-900">Healthcare General Duty</td>
+                            <td class="p-4">Thane</td>
+                            <td class="p-4">2,100</td>
+                            <td class="p-4 text-teal-700 font-semibold">82%</td>
+                            <td class="p-4 text-slate-500">Low Attrition (High Local Demand)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-medium text-slate-900">Automotive Technician</td>
+                            <td class="p-4">Aurangabad</td>
+                            <td class="p-4">1,150</td>
+                            <td class="p-4 text-teal-700 font-semibold">64%</td>
+                            <td class="p-4 text-slate-500">Location Mismatch (Relocation Costs)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 7. Why Not Just ChatGPT? / Trust & Privacy -->
+        <section id="privacy" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold uppercase tracking-wider text-primary">Preempting Judge Objections</span>
+                <h3 class="text-xl font-bold text-slate-900 mt-2 mb-4">"Why not just use ChatGPT?"</h3>
+                <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                    A standalone LLM chat session is stateless and isolated. It cannot persist thousands of longitudinal records across 30, 90, and 180 days, compute aggregate district conversion statistics, or enforce secure state government database schemas.
+                </p>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    <strong>SkillSetu</strong> integrates Groq API as an inference engine connected to a robust relational database backend, combining structured cohort analytics with intelligent qualitative text analysis.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-bold uppercase tracking-wider text-secondary">Privacy-First Architecture</span>
+                <h3 class="text-xl font-bold text-slate-900 mt-2 mb-4">Data Privacy & Real-World Messiness</h3>
+                <ul class="space-y-3 text-sm text-slate-600">
+                    <li class="flex items-start gap-2">
+                        <span class="text-teal-600 font-bold">✓</span>
+                        <span><strong>Explicit Consent:</strong> No tracking occurs without mandatory opt-in during registration.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-teal-600 font-bold">✓</span>
+                        <span><strong>Handling Phone/Location Changes:</strong> Automated multi-channel follow-ups via MSG91 SMS/IVR gateway with fallback verification loops.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-teal-600 font-bold">✓</span>
+                        <span><strong>Production Roadmap:</strong> Aadhaar / DigiLocker persistent ID federation ready for secure government deployment.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 8. Roadmap Strip -->
+        <section class="bg-slate-900 text-white p-8 rounded-2xl shadow-lg">
+            <div class="max-w-3xl mx-auto text-center mb-8">
+                <span class="text-xs font-semibold px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full">Production Scalability</span>
+                <h3 class="text-2xl font-bold mt-2">Roadmap to Statewide Deployment</h3>
+                <p class="text-sm text-slate-400 mt-1">Clear production architecture designed for seamless scale across all districts in Maharashtra.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <h4 class="font-bold text-teal-400 mb-1">Phase 1: Gateway Scale</h4>
+                    <p class="text-xs text-slate-300">Integration with MSG91 bulk SMS/IVR API for automated 100k+ trainee check-ins.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <h4 class="font-bold text-teal-400 mb-1">Phase 2: EPFO / ID Sync</h4>
+                    <p class="text-xs text-slate-300">Secure matching with EPFO employer databases and DigiLocker ID federation.</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <h4 class="font-bold text-teal-400 mb-1">Phase 3: Multi-State Rollout</h4>
+                    <p class="text-xs text-slate-300">Open API standards for Ministry of Skill Development & Entrepreneurship (MSDE) integration.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 9. Footer -->
+    <footer class="bg-white border-t border-slate-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">
+                    S
+                </div>
+                <div>
+                    <span class="text-lg font-bold text-primary">SkillSetu</span>
+                    <p class="text-xs text-slate-500">Smart India Hackathon 2026 &bull; PS SIH26135 &bull; Govt. of Maharashtra</p>
+                </div>
+            </div>
+            <div class="text-xs text-slate-600 font-medium">
+                Crafted with precision by <span class="text-slate-900 font-bold">The Gradient Crew</span> for SIH Evaluation Judges.
+            </div>
+        </div>
+    </footer>
+
+    <!-- External JavaScript File Link -->
+    <!-- Embedded Interactive Script for Zero-Error Demo -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Registration Form Interactivity
+            const registrationForm = document.getElementById('registrationForm');
+            if (registrationForm) {
+                registrationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const successBox = document.getElementById('regSuccess');
+                    successBox.classList.remove('hidden');
+                    successBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+            }
+
+            // 2. AI Reasoning Simulation
+            const runAiBtn = document.getElementById('runAiBtn');
+            if (runAiBtn) {
+                runAiBtn.addEventListener('click', function() {
+                    const loading = document.getElementById('aiLoading');
+                    const resultCard = document.getElementById('aiResultCard');
+                    
+                    loading.classList.remove('hidden');
+                    resultCard.classList.add('hidden');
+
+                    setTimeout(() => {
+                        loading.classList.add('hidden');
+                        resultCard.classList.remove('hidden');
+                        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 1000);
+                });
+            }
+
+            // 3. Chart.js Initializations
+            const ctxBar = document.getElementById('conversionChart');
+            let conversionChart;
+            if (ctxBar) {
+                conversionChart = new Chart(ctxBar.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pune', 'Nagpur', 'Thane', 'Aurangabad', 'Nashik'],
+                        datasets: [{
+                            label: 'Employment Conversion %',
+                            data: [68, 74, 82, 61, 70],
+                            backgroundColor: '#1e3a8a',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, max: 100 } }
+                    }
+                });
+            }
+
+            const ctxDonut = document.getElementById('outcomeDonut');
+            if (ctxDonut) {
+                new Chart(ctxDonut.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Employed (Salaried)', 'Self-Employed', 'Still Searching', 'Higher Studies'],
+                        datasets: [{
+                            data: [62, 12, 18, 8],
+                            backgroundColor: ['#1e3a8a', '#0f766e', '#f59e0b', '#64748b']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+                    }
+                });
+            }
+
+            const districtFilter = document.getElementById('districtFilter');
+            if (districtFilter && conversionChart) {
+                districtFilter.addEventListener('change', function(e) {
+                    const val = e.target.value;
+                    if(val === 'pune') {
+                        conversionChart.data.datasets[0].data = [58, 58, 58, 58, 58];
+                        document.getElementById('policyInsightText').innerHTML = '"Analysis of Pune district cohorts shows a <strong>38% skill-mismatch rate</strong> in industrial manufacturing courses. Immediate curriculum upgrade recommended."';
+                    } else if(val === 'nagpur') {
+                        conversionChart.data.datasets[0].data = [74, 74, 74, 74, 74];
+                        document.getElementById('policyInsightText').innerHTML = '"Nagpur district exhibits high tech adoption with a <strong>76% web developer placement rate</strong>. Recommend expanding IT incubation linkages."';
+                    } else {
+                        conversionChart.data.datasets[0].data = [68, 74, 82, 61, 70];
+                        document.getElementById('policyInsightText').innerHTML = '"Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."';
+                    }
+                    conversionChart.update();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
