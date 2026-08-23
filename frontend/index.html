@@ -476,122 +476,466 @@
 
     <!-- Embedded Interactive Script connected to FastAPI & Groq Backend -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Registration Form Interactivity
-            const registrationForm = document.getElementById('registrationForm');
-            if (registrationForm) {
-                registrationForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const successBox = document.getElementById('regSuccess');
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ============================================================
+        // SkillSetu API Configuration
+        // ============================================================
+        const API_BASE_URL = 'https://skillsetu-sih26135.onrender.com';
+
+
+        // ============================================================
+        // 1. Registration Form Interactivity
+        // ============================================================
+        const registrationForm = document.getElementById('registrationForm');
+
+        if (registrationForm) {
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const successBox = document.getElementById('regSuccess');
+
+                if (successBox) {
                     successBox.classList.remove('hidden');
-                    successBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                });
-            }
+                    successBox.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
+            });
+        }
 
-            // 2. Live FastAPI Backend + Groq AI Reasoning Call
-            const runAiBtn = document.getElementById('runAiBtn');
-            if (runAiBtn) {
-                runAiBtn.addEventListener('click', async function() {
-                    const loading = document.getElementById('aiLoading');
-                    const resultCard = document.getElementById('aiResultCard');
-                    const feedbackText = document.getElementById('traineeFeedback')?.value || "Looking for work";
-                    const employmentStatus = document.getElementById('employmentStatus')?.value || "searching";
-                    
-                    loading.classList.remove('hidden');
-                    resultCard.classList.add('hidden');
 
-                    try {
-                        // Corrected endpoint matching your main.py route
-                        const response = await fetch('http://localhost:8000/api/v1/ai/analyze', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                employment_status: employmentStatus,
-                                trainee_feedback: feedbackText 
-                            })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        // Dynamically update UI with live response from backend/Groq
-                        document.getElementById('aiCategory').innerText = data.primary_bottleneck || "Skill & Stack Mismatch";
-                        document.getElementById('aiConfidence').innerText = data.confidence_score || "91.5%";
-                        document.getElementById('aiAction').innerText = data.recommended_action || "Curriculum update recommended.";
+        // ============================================================
+        // 2. Live FastAPI + Groq AI Reasoning
+        // ============================================================
+        const runAiBtn = document.getElementById('runAiBtn');
 
-                    } catch (err) {
-                        // Fallback response if FastAPI server is not active
-                        document.getElementById('aiCategory').innerText = "Dynamic Analysis: Skill & Stack Mismatch";
-                        document.getElementById('aiConfidence').innerText = "94.8%";
-                        document.getElementById('aiAction').innerText = "Recommended Action: Bridge backend specialization with targeted full-stack modules for local district job markets.";
+        if (runAiBtn) {
+            runAiBtn.addEventListener('click', async function() {
+
+                const loading = document.getElementById('aiLoading');
+                const resultCard = document.getElementById('aiResultCard');
+
+                const feedbackInput =
+                    document.getElementById('traineeFeedback');
+
+                const employmentStatusInput =
+                    document.getElementById('employmentStatus');
+
+                const feedbackText =
+                    feedbackInput?.value?.trim() || '';
+
+                const employmentStatus =
+                    employmentStatusInput?.value || 'searching';
+
+
+                // --------------------------------------------------------
+                // Validate feedback before calling the backend
+                // --------------------------------------------------------
+                if (!feedbackText) {
+                    alert('Please enter trainee feedback before running AI analysis.');
+
+                    if (feedbackInput) {
+                        feedbackInput.focus();
                     }
 
-                    loading.classList.add('hidden');
-                    resultCard.classList.remove('hidden');
-                    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                });
-            }
+                    return;
+                }
 
-            // 3. Chart.js Initializations
-            const ctxBar = document.getElementById('conversionChart');
-            let conversionChart;
-            if (ctxBar) {
-                conversionChart = new Chart(ctxBar.getContext('2d'), {
+
+                // --------------------------------------------------------
+                // Show loading state
+                // --------------------------------------------------------
+                if (loading) {
+                    loading.classList.remove('hidden');
+                }
+
+                if (resultCard) {
+                    resultCard.classList.add('hidden');
+                }
+
+                // Prevent multiple clicks while request is running
+                runAiBtn.disabled = true;
+                runAiBtn.classList.add('opacity-60', 'cursor-not-allowed');
+
+
+                try {
+
+                    // ----------------------------------------------------
+                    // Call LIVE Render FastAPI backend
+                    // ----------------------------------------------------
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/v1/ai/analyze`,
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                employment_status: employmentStatus,
+                                trainee_feedback: feedbackText
+                            })
+                        }
+                    );
+
+
+                    // ----------------------------------------------------
+                    // Check HTTP status
+                    // ----------------------------------------------------
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            `Backend request failed with HTTP ${response.status}.`;
+
+                        try {
+                            const errorData = await response.json();
+
+                            if (errorData?.detail) {
+                                errorMessage = errorData.detail;
+                            }
+                        } catch (jsonError) {
+                            // Response wasn't valid JSON.
+                            // Keep the HTTP error message.
+                        }
+
+                        throw new Error(errorMessage);
+                    }
+
+
+                    // ----------------------------------------------------
+                    // Safely parse JSON
+                    // ----------------------------------------------------
+                    const data = await response.json();
+
+
+                    if (!data || typeof data !== 'object') {
+                        throw new Error(
+                            'Backend returned an invalid response.'
+                        );
+                    }
+
+
+                    // ----------------------------------------------------
+                    // Extract AI response safely
+                    // ----------------------------------------------------
+                    const category =
+                        data.primary_bottleneck ||
+                        'AI Analysis Completed';
+
+                    const confidence =
+                        data.confidence_score !== undefined &&
+                        data.confidence_score !== null
+                            ? String(data.confidence_score)
+                            : 'N/A';
+
+                    const action =
+                        data.recommended_action ||
+                        'No automated recommendation was returned.';
+
+
+                    // ----------------------------------------------------
+                    // Update AI result card
+                    // ----------------------------------------------------
+                    const categoryElement =
+                        document.getElementById('aiCategory');
+
+                    const confidenceElement =
+                        document.getElementById('aiConfidence');
+
+                    const actionElement =
+                        document.getElementById('aiAction');
+
+
+                    if (categoryElement) {
+                        categoryElement.innerText = category;
+                    }
+
+                    if (confidenceElement) {
+                        confidenceElement.innerText = confidence;
+                    }
+
+                    if (actionElement) {
+                        actionElement.innerText = action;
+                    }
+
+
+                    // ----------------------------------------------------
+                    // Show successful result
+                    // ----------------------------------------------------
+                    if (resultCard) {
+                        resultCard.classList.remove('hidden');
+
+                        resultCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    }
+
+                } catch (error) {
+
+                    // ----------------------------------------------------
+                    // Production-safe error handling
+                    // ----------------------------------------------------
+                    console.error(
+                        'SkillSetu AI Analysis Error:',
+                        error
+                    );
+
+
+                    const categoryElement =
+                        document.getElementById('aiCategory');
+
+                    const confidenceElement =
+                        document.getElementById('aiConfidence');
+
+                    const actionElement =
+                        document.getElementById('aiAction');
+
+
+                    if (categoryElement) {
+                        categoryElement.innerText =
+                            'AI Analysis Temporarily Unavailable';
+                    }
+
+                    if (confidenceElement) {
+                        confidenceElement.innerText =
+                            '—';
+                    }
+
+                    if (actionElement) {
+                        actionElement.innerText =
+                            'The AI service could not process this request right now. Please try again in a few seconds.';
+                    }
+
+
+                    if (resultCard) {
+                        resultCard.classList.remove('hidden');
+
+                        resultCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    }
+
+                } finally {
+
+                    // ----------------------------------------------------
+                    // Always restore UI state
+                    // ----------------------------------------------------
+                    if (loading) {
+                        loading.classList.add('hidden');
+                    }
+
+                    runAiBtn.disabled = false;
+                    runAiBtn.classList.remove(
+                        'opacity-60',
+                        'cursor-not-allowed'
+                    );
+                }
+            });
+        }
+
+
+        // ============================================================
+        // 3. Chart.js - Conversion Bar Chart
+        // ============================================================
+        const ctxBar =
+            document.getElementById('conversionChart');
+
+        let conversionChart;
+
+        if (ctxBar) {
+
+            conversionChart = new Chart(
+                ctxBar.getContext('2d'),
+                {
                     type: 'bar',
+
                     data: {
-                        labels: ['Pune', 'Nagpur', 'Thane', 'Aurangabad', 'Nashik'],
+                        labels: [
+                            'Pune',
+                            'Nagpur',
+                            'Thane',
+                            'Aurangabad',
+                            'Nashik'
+                        ],
+
                         datasets: [{
                             label: 'Employment Conversion %',
-                            data: [68, 74, 82, 61, 70],
+
+                            data: [
+                                68,
+                                74,
+                                82,
+                                61,
+                                70
+                            ],
+
                             backgroundColor: '#1e3a8a',
+
                             borderRadius: 6
                         }]
                     },
+
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, max: 100 } }
-                    }
-                });
-            }
 
-            const ctxDonut = document.getElementById('outcomeDonut');
-            if (ctxDonut) {
-                new Chart(ctxDonut.getContext('2d'), {
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+
+        // ============================================================
+        // 4. Chart.js - Outcome Donut Chart
+        // ============================================================
+        const ctxDonut =
+            document.getElementById('outcomeDonut');
+
+        if (ctxDonut) {
+
+            new Chart(
+                ctxDonut.getContext('2d'),
+                {
                     type: 'doughnut',
+
                     data: {
-                        labels: ['Employed (Salaried)', 'Self-Employed', 'Still Searching', 'Higher Studies'],
+                        labels: [
+                            'Employed (Salaried)',
+                            'Self-Employed',
+                            'Still Searching',
+                            'Higher Studies'
+                        ],
+
                         datasets: [{
-                            data: [62, 12, 18, 8],
-                            backgroundColor: ['#1e3a8a', '#0f766e', '#f59e0b', '#64748b']
+                            data: [
+                                62,
+                                12,
+                                18,
+                                8
+                            ],
+
+                            backgroundColor: [
+                                '#1e3a8a',
+                                '#0f766e',
+                                '#f59e0b',
+                                '#64748b'
+                            ]
                         }]
                     },
+
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
-                    }
-                });
-            }
 
-            const districtFilter = document.getElementById('districtFilter');
-            if (districtFilter && conversionChart) {
-                districtFilter.addEventListener('change', function(e) {
-                    const val = e.target.value;
-                    if(val === 'pune') {
-                        conversionChart.data.datasets[0].data = [58, 58, 58, 58, 58];
-                        document.getElementById('policyInsightText').innerHTML = '"Analysis of Pune district cohorts shows a <strong>38% skill-mismatch rate</strong> in industrial manufacturing courses. Immediate curriculum upgrade recommended."';
-                    } else if(val === 'nagpur') {
-                        conversionChart.data.datasets[0].data = [74, 74, 74, 74, 74];
-                        document.getElementById('policyInsightText').innerHTML = '"Nagpur district exhibits high tech adoption with a <strong>76% web developer placement rate</strong>. Recommend expanding IT incubation linkages."';
-                    } else {
-                        conversionChart.data.datasets[0].data = [68, 74, 82, 61, 70];
-                        document.getElementById('policyInsightText').innerHTML = '"Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."';
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+
+                                labels: {
+                                    boxWidth: 12,
+
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
                     }
+                }
+            );
+        }
+
+
+        // ============================================================
+        // 5. District Filter Interactivity
+        // ============================================================
+        const districtFilter =
+            document.getElementById('districtFilter');
+
+        if (districtFilter && conversionChart) {
+
+            districtFilter.addEventListener(
+                'change',
+                function(e) {
+
+                    const val = e.target.value;
+
+                    const policyInsightText =
+                        document.getElementById('policyInsightText');
+
+
+                    if (val === 'pune') {
+
+                        conversionChart.data.datasets[0].data = [
+                            58,
+                            58,
+                            58,
+                            58,
+                            58
+                        ];
+
+                        if (policyInsightText) {
+                            policyInsightText.innerHTML =
+                                '"Analysis of Pune district cohorts shows a <strong>38% skill-mismatch rate</strong> in industrial manufacturing courses. Immediate curriculum upgrade recommended."';
+                        }
+
+                    } else if (val === 'nagpur') {
+
+                        conversionChart.data.datasets[0].data = [
+                            74,
+                            74,
+                            74,
+                            74,
+                            74
+                        ];
+
+                        if (policyInsightText) {
+                            policyInsightText.innerHTML =
+                                '"Nagpur district exhibits high tech adoption with a <strong>76% web developer placement rate</strong>. Recommend expanding IT incubation linkages."';
+                        }
+
+                    } else {
+
+                        conversionChart.data.datasets[0].data = [
+                            68,
+                            74,
+                            82,
+                            61,
+                            70
+                        ];
+
+                        if (policyInsightText) {
+                            policyInsightText.innerHTML =
+                                '"Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."';
+                        }
+                    }
+
                     conversionChart.update();
-                });
-            }
-        });
-    </script>
+                }
+            );
+        }
+
+    });
+</script>
 </body>
 </html>
