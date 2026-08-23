@@ -58,7 +58,8 @@ Do not include markdown codeblocks, explanation, or extra text."""
                 }
             ],
             temperature=0.2,
-            max_tokens=250,
+            max_tokens=600,
+            reasoning_effort="low",
             response_format={"type": "json_object"}
         )
 
