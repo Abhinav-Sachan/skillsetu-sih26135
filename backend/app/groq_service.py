@@ -46,7 +46,7 @@ Do not include markdown codeblocks, explanation, or extra text."""
         logger.info("Sending trainee feedback to Groq AI for analysis.")
 
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[
                 {
                     "role": "system",
