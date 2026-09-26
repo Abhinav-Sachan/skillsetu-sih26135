@@ -5,7 +5,11 @@ from groq import Groq
 
 logger = logging.getLogger(__name__)
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = "openai/gpt-oss-120b"
+
+
+class AIServiceError(Exception):
+    """Raised when the Groq service is unavailable or returns an unusable response."""
 
 
 def get_groq_client():
@@ -46,7 +50,7 @@ Do not include markdown codeblocks, explanation, or extra text."""
         logger.info("Sending trainee feedback to Groq AI for analysis.")
 
         completion = client.chat.completions.create(
-            model="openai/gpt-oss-120b",
+            model=GROQ_MODEL,
             messages=[
                 {
                     "role": "system",
@@ -77,3 +81,71 @@ Do not include markdown codeblocks, explanation, or extra text."""
             "confidence_score": "0%",
             "recommended_action": "The Groq AI service request failed. Check the Render logs for the exact error."
         }
+
+def _clean_list(value, limit=5):
+    """Keep only non-empty strings from an LLM-provided list."""
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if isinstance(item, (str, int, float)) and str(item).strip()][:limit]
+
+
+def analyze_self_assessment_with_groq(payload: dict) -> dict:
+    """Turn a scored self-assessment into a personalised skill-gap analysis.
+
+    Scoring is deterministic and done before this call; the LLM only writes the
+    narrative (summary, strengths, gaps, modules, next step).
+    Raises AIServiceError if Groq is not configured or returns an unusable answer.
+    """
+    client = get_groq_client()
+    if not client:
+        raise AIServiceError("Groq API key is not configured.")
+
+    system_prompt = """You are a skills-assessment counsellor for the Government of Maharashtra's skilling programmes (SIH26135 - SkillSetu).
+
+You receive a trainee's self-assessment result: programme, district, overall score, per-skill scores and the topics they got wrong.
+Write a short, encouraging, practical skill-gap analysis in simple English that a trainee can understand.
+
+Rules:
+- Base every statement ONLY on the scores and missed topics provided. Do not invent scores.
+- A skill with 75% or more is a strength; below 75% is a gap.
+- Recommended modules must be concrete short courses (name + approximate hours) that fix the listed gaps.
+- Keep each list item under 20 words. Maximum 4 items per list.
+
+Respond ONLY with a valid JSON object using exactly this schema:
+{
+    "summary": "2 sentences on overall readiness and the biggest gap",
+    "strengths": ["..."],
+    "skill_gaps": ["..."],
+    "recommended_modules": ["..."],
+    "next_step": "One specific action for the next 30 days"
+}"""
+
+    try:
+        completion = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
+            ],
+            temperature=0.3,
+            max_tokens=900,
+            reasoning_effort="low",
+            response_format={"type": "json_object"},
+        )
+        data = json.loads(completion.choices[0].message.content)
+    except Exception as exc:
+        logger.exception("GROQ SELF-ASSESSMENT REQUEST FAILED")
+        raise AIServiceError("Groq request failed.") from exc
+
+    summary = str(data.get("summary", "")).strip() if isinstance(data, dict) else ""
+    next_step = str(data.get("next_step", "")).strip() if isinstance(data, dict) else ""
+    if not summary or not next_step:
+        raise AIServiceError("Groq returned an incomplete analysis.")
+
+    return {
+        "summary": summary,
+        "strengths": _clean_list(data.get("strengths")),
+        "skill_gaps": _clean_list(data.get("skill_gaps")),
+        "recommended_modules": _clean_list(data.get("recommended_modules")),
+        "next_step": next_step,
+    }

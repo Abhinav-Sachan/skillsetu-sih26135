@@ -10,8 +10,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Custom External CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Custom styles (inlined so they always load, whatever the hosting root) -->
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+
+        /* Smooth transition for interactive components */
+        .civic-card { transition: all 0.2s ease-in-out; }
+        .civic-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.1); }
+
+        /* Maharashtra art: Paithani-inspired border strip (maroon + gold) */
+        .paithani-strip {
+            height: 10px;
+            background-color: #7f1d1d;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Crect width='14' height='14' fill='%237f1d1d'/%3E%3Cpath d='M0 0L7 4.5L14 0Z M0 14L7 9.5L14 14Z' fill='%23d4a017'/%3E%3Cpath d='M0 5.2L1.8 7L0 8.8Z M14 5.2L12.2 7L14 8.8Z' fill='%23f5d06f'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-size: 10px 10px;
+        }
+
+        /* Maharashtra art: Warli-style line art (terracotta on white) */
+        .warli { color: #9a3412; }
+        .warli-dance { animation: warli-spin 140s linear infinite; }
+        @keyframes warli-spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .warli-dance { animation: none; } }
+
+        /* Self-assessment modal */
+        .sa-option { transition: border-color .15s, background-color .15s; }
+        .sa-option:has(input:checked) { border-color: #1e3a8a; background-color: #eff6ff; }
+        .sa-option:has(input:focus-visible) { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+        body.sa-open { overflow: hidden; }
+
+        /* Decorative art sits behind the real content */
+        .art-host { position: relative; overflow: hidden; }
+        .art-host > *:not(.art) { position: relative; z-index: 1; }
+        .art svg { width: 100%; height: auto; display: block; }
+    </style>
     <script>
         tailwind.config = {
             theme: {
@@ -20,6 +53,8 @@
                         primary: '#1e3a8a', // Deep Government Indigo/Blue
                         secondary: '#0f766e', // Teal accent
                         surface: '#f8fafc',
+                        saffron: '#ea580c', // Maharashtra saffron accent
+                        maroon: '#7f1d1d', // Paithani maroon
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -33,12 +68,12 @@
 
     <!-- Top Notice Bar (SIH Context) -->
     <div class="bg-primary text-white text-xs py-2 px-4 text-center font-medium tracking-wide">
-        Smart India Hackathon 2026 &bull; Problem Statement SIH26135 &bull; Govt. of Maharashtra (Smart Education Theme)
+        Smart India Hackathon 2026 &bull; Problem Statement SIH26135 &bull; Govt. of Maharashtra &bull; Theme: Miscellaneous
     </div>
 
     <!-- Navigation Bar -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg shadow-md">
                     S
@@ -48,32 +83,45 @@
                     <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full font-semibold">Live Demo</span>
                 </div>
             </div>
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+            <nav class="hidden xl:flex items-center space-x-5 2xl:space-x-7 text-sm font-medium text-slate-600 whitespace-nowrap">
                 <a href="#problem" class="hover:text-primary transition">The Problem</a>
                 <a href="#how-it-works" class="hover:text-primary transition">How It Works</a>
                 <a href="#registration" class="hover:text-primary transition">Register Trainee</a>
                 <a href="#ai-demo" class="hover:text-primary transition">AI Reasoning</a>
+                <a href="#self-assessment" class="hover:text-primary transition">Self-Assessment</a>
                 <a href="#dashboard" class="hover:text-primary transition">Analytics Dashboard</a>
                 <a href="#privacy" class="hover:text-primary transition">Trust & Privacy</a>
             </nav>
-            <div>
-                <a href="#dashboard" class="bg-secondary hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+            <div class="flex items-center gap-2">
+                <button type="button" data-sa-open class="whitespace-nowrap bg-saffron hover:bg-orange-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                    Self-Test
+                </button>
+                <a href="#dashboard" class="hidden sm:inline-block whitespace-nowrap bg-secondary hover:bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
                     View Dashboard
                 </a>
             </div>
         </div>
+        <div class="paithani-strip" aria-hidden="true"></div>
     </header>
 
-    <!-- 1. Hero / Landing Section -->
+    <!-- 1. Hero / Landing Section (government blue, with white Warli-style folk art as on traditional mud walls) -->
     <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-primary to-slate-900 text-white py-20 lg:py-28">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]" aria-hidden="true"></div>
+        <!-- Warli village scene (left) -->
+        <div class="text-white hidden lg:block absolute left-4 xl:left-10 bottom-10 w-[250px] xl:w-[300px] opacity-20 pointer-events-none" aria-hidden="true">
+            <svg class="warli-village" viewBox="0 0 310 270" role="img" aria-label="Warli-style village scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="62" cy="52" r="16"/><path d="M81 52L88 52" stroke-width="1.6" fill="none"/><path d="M79.6 59.3L86 61.9" stroke-width="1.6" fill="none"/><path d="M75.4 65.4L80.4 70.4" stroke-width="1.6" fill="none"/><path d="M69.3 69.6L71.9 76" stroke-width="1.6" fill="none"/><path d="M62 71L62 78" stroke-width="1.6" fill="none"/><path d="M54.7 69.6L52.1 76" stroke-width="1.6" fill="none"/><path d="M48.6 65.4L43.6 70.4" stroke-width="1.6" fill="none"/><path d="M44.4 59.3L38 61.9" stroke-width="1.6" fill="none"/><path d="M43 52L36 52" stroke-width="1.6" fill="none"/><path d="M44.4 44.7L38 42.1" stroke-width="1.6" fill="none"/><path d="M48.6 38.6L43.6 33.6" stroke-width="1.6" fill="none"/><path d="M54.7 34.4L52.1 28" stroke-width="1.6" fill="none"/><path d="M62 33L62 26" stroke-width="1.6" fill="none"/><path d="M69.3 34.4L71.9 28" stroke-width="1.6" fill="none"/><path d="M75.4 38.6L80.4 33.6" stroke-width="1.6" fill="none"/><path d="M79.6 44.7L86 42.1" stroke-width="1.6" fill="none"/><path d="M150 250L150 80" stroke-width="3" fill="none"/><path d="M150 190.5L78.6 165.5" stroke-width="1.4" fill="none"/><ellipse cx="132.2" cy="181.3" rx="1.6" ry="3.2" transform="rotate(-25 132.2 181.3)"/><ellipse cx="114.3" cy="175" rx="1.6" ry="3.2" transform="rotate(-25 114.3 175)"/><ellipse cx="96.5" cy="168.8" rx="1.6" ry="3.2" transform="rotate(-25 96.5 168.8)"/><path d="M150 190.5L221.4 165.5" stroke-width="1.4" fill="none"/><ellipse cx="167.8" cy="181.3" rx="1.6" ry="3.2" transform="rotate(25 167.8 181.3)"/><ellipse cx="185.7" cy="175" rx="1.6" ry="3.2" transform="rotate(25 185.7 175)"/><ellipse cx="203.6" cy="168.8" rx="1.6" ry="3.2" transform="rotate(25 203.6 168.8)"/><path d="M150 177.8L84.5 154.8" stroke-width="1.4" fill="none"/><ellipse cx="133.6" cy="169" rx="1.6" ry="3.2" transform="rotate(-25 133.6 169)"/><ellipse cx="117.3" cy="163.3" rx="1.6" ry="3.2" transform="rotate(-25 117.3 163.3)"/><ellipse cx="100.9" cy="157.6" rx="1.6" ry="3.2" transform="rotate(-25 100.9 157.6)"/><path d="M150 177.8L215.4 154.8" stroke-width="1.4" fill="none"/><ellipse cx="166.4" cy="169" rx="1.6" ry="3.2" transform="rotate(25 166.4 169)"/><ellipse cx="182.7" cy="163.3" rx="1.6" ry="3.2" transform="rotate(25 182.7 163.3)"/><ellipse cx="199.1" cy="157.6" rx="1.6" ry="3.2" transform="rotate(25 199.1 157.6)"/><path d="M150 165L90.5 144.2" stroke-width="1.4" fill="none"/><ellipse cx="135.1" cy="156.8" rx="1.6" ry="3.2" transform="rotate(-25 135.1 156.8)"/><ellipse cx="120.2" cy="151.6" rx="1.6" ry="3.2" transform="rotate(-25 120.2 151.6)"/><ellipse cx="105.4" cy="146.4" rx="1.6" ry="3.2" transform="rotate(-25 105.4 146.4)"/><path d="M150 165L209.5 144.2" stroke-width="1.4" fill="none"/><ellipse cx="164.9" cy="156.8" rx="1.6" ry="3.2" transform="rotate(25 164.9 156.8)"/><ellipse cx="179.8" cy="151.6" rx="1.6" ry="3.2" transform="rotate(25 179.8 151.6)"/><ellipse cx="194.6" cy="146.4" rx="1.6" ry="3.2" transform="rotate(25 194.6 146.4)"/><path d="M150 152.2L96.5 133.5" stroke-width="1.4" fill="none"/><ellipse cx="136.6" cy="144.6" rx="1.6" ry="3.2" transform="rotate(-25 136.6 144.6)"/><ellipse cx="123.2" cy="139.9" rx="1.6" ry="3.2" transform="rotate(-25 123.2 139.9)"/><ellipse cx="109.8" cy="135.2" rx="1.6" ry="3.2" transform="rotate(-25 109.8 135.2)"/><path d="M150 152.2L203.5 133.5" stroke-width="1.4" fill="none"/><ellipse cx="163.4" cy="144.6" rx="1.6" ry="3.2" transform="rotate(25 163.4 144.6)"/><ellipse cx="176.8" cy="139.9" rx="1.6" ry="3.2" transform="rotate(25 176.8 139.9)"/><ellipse cx="190.2" cy="135.2" rx="1.6" ry="3.2" transform="rotate(25 190.2 135.2)"/><path d="M150 139.5L102.4 122.8" stroke-width="1.4" fill="none"/><ellipse cx="138.1" cy="132.3" rx="1.6" ry="3.2" transform="rotate(-25 138.1 132.3)"/><ellipse cx="126.2" cy="128.2" rx="1.6" ry="3.2" transform="rotate(-25 126.2 128.2)"/><ellipse cx="114.3" cy="124" rx="1.6" ry="3.2" transform="rotate(-25 114.3 124)"/><path d="M150 139.5L197.6 122.8" stroke-width="1.4" fill="none"/><ellipse cx="161.9" cy="132.3" rx="1.6" ry="3.2" transform="rotate(25 161.9 132.3)"/><ellipse cx="173.8" cy="128.2" rx="1.6" ry="3.2" transform="rotate(25 173.8 128.2)"/><ellipse cx="185.7" cy="124" rx="1.6" ry="3.2" transform="rotate(25 185.7 124)"/><path d="M150 126.8L108.4 112.2" stroke-width="1.4" fill="none"/><ellipse cx="139.6" cy="120.1" rx="1.6" ry="3.2" transform="rotate(-25 139.6 120.1)"/><ellipse cx="129.2" cy="116.5" rx="1.6" ry="3.2" transform="rotate(-25 129.2 116.5)"/><ellipse cx="118.8" cy="112.8" rx="1.6" ry="3.2" transform="rotate(-25 118.8 112.8)"/><path d="M150 126.8L191.6 112.2" stroke-width="1.4" fill="none"/><ellipse cx="160.4" cy="120.1" rx="1.6" ry="3.2" transform="rotate(25 160.4 120.1)"/><ellipse cx="170.8" cy="116.5" rx="1.6" ry="3.2" transform="rotate(25 170.8 116.5)"/><ellipse cx="181.2" cy="112.8" rx="1.6" ry="3.2" transform="rotate(25 181.2 112.8)"/><path d="M150 114L114.3 101.5" stroke-width="1.4" fill="none"/><ellipse cx="141.1" cy="107.9" rx="1.6" ry="3.2" transform="rotate(-25 141.1 107.9)"/><ellipse cx="132.2" cy="104.8" rx="1.6" ry="3.2" transform="rotate(-25 132.2 104.8)"/><ellipse cx="123.2" cy="101.6" rx="1.6" ry="3.2" transform="rotate(-25 123.2 101.6)"/><path d="M150 114L185.7 101.5" stroke-width="1.4" fill="none"/><ellipse cx="158.9" cy="107.9" rx="1.6" ry="3.2" transform="rotate(25 158.9 107.9)"/><ellipse cx="167.8" cy="104.8" rx="1.6" ry="3.2" transform="rotate(25 167.8 104.8)"/><ellipse cx="176.8" cy="101.6" rx="1.6" ry="3.2" transform="rotate(25 176.8 101.6)"/><path d="M150 101.2L120.2 90.8" stroke-width="1.4" fill="none"/><ellipse cx="142.6" cy="95.6" rx="1.6" ry="3.2" transform="rotate(-25 142.6 95.6)"/><ellipse cx="135.1" cy="93" rx="1.6" ry="3.2" transform="rotate(-25 135.1 93)"/><ellipse cx="127.7" cy="90.4" rx="1.6" ry="3.2" transform="rotate(-25 127.7 90.4)"/><path d="M150 101.2L179.8 90.8" stroke-width="1.4" fill="none"/><ellipse cx="157.4" cy="95.6" rx="1.6" ry="3.2" transform="rotate(25 157.4 95.6)"/><ellipse cx="164.9" cy="93" rx="1.6" ry="3.2" transform="rotate(25 164.9 93)"/><ellipse cx="172.3" cy="90.4" rx="1.6" ry="3.2" transform="rotate(25 172.3 90.4)"/><path d="M150 88.5L126.2 80.2" stroke-width="1.4" fill="none"/><ellipse cx="144.1" cy="83.4" rx="1.6" ry="3.2" transform="rotate(-25 144.1 83.4)"/><ellipse cx="138.1" cy="81.3" rx="1.6" ry="3.2" transform="rotate(-25 138.1 81.3)"/><ellipse cx="132.2" cy="79.3" rx="1.6" ry="3.2" transform="rotate(-25 132.2 79.3)"/><path d="M150 88.5L173.8 80.2" stroke-width="1.4" fill="none"/><ellipse cx="155.9" cy="83.4" rx="1.6" ry="3.2" transform="rotate(25 155.9 83.4)"/><ellipse cx="161.9" cy="81.3" rx="1.6" ry="3.2" transform="rotate(25 161.9 81.3)"/><ellipse cx="167.8" cy="79.3" rx="1.6" ry="3.2" transform="rotate(25 167.8 79.3)"/><path d="M215 250L215 211.5L285 211.5L285 250" fill="none" stroke-width="1.8"/><path d="M209 211.5L250 180L291 211.5Z"/><path d="M245 250L245 237L255 237L255 250" fill="none" stroke-width="1.6"/><g transform="translate(60 224) rotate(0)"><path d="M-8.4 -12L8.4 -12L0 0Z M0 0L8.4 12L-8.4 12Z"/><circle cx="0" cy="-17" r="4.3"/><path d="M-8.4 -12L-13.2 -3.6L-10.8 3.6" fill="none" stroke-width="1.9"/><path d="M8.4 -12L15.6 -6L22.8 -2.4" fill="none" stroke-width="1.9"/><path d="M-5 12L-10.8 20.4L-9.6 27.6" fill="none" stroke-width="1.9"/><path d="M5 12L12 19.2L14.4 26.4" fill="none" stroke-width="1.9"/></g><g transform="translate(205 228) rotate(0)"><path d="M-7.4 -10.5L7.4 -10.5L0 0Z M0 0L7.4 10.5L-7.4 10.5Z"/><circle cx="0" cy="-14.9" r="3.8"/><path d="M-7.4 -10.5L-12.6 -4.2L-16.8 -12.6" fill="none" stroke-width="1.7"/><path d="M7.4 -10.5L12.6 -4.2L16.8 -12.6" fill="none" stroke-width="1.7"/><path d="M-4.4 10.5L-9.5 17.9L-8.4 24.1" fill="none" stroke-width="1.7"/><path d="M4.4 10.5L10.5 16.8L12.6 23.1" fill="none" stroke-width="1.7"/></g><path d="M10 252L300 252" stroke-width="2" fill="none"/><path d="M14 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M32 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M50 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M68 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M86 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M104 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M122 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M140 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M158 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M176 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M194 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M212 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M230 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M248 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M266 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M284 262l6 -6 6 6" stroke-width="1.4" fill="none"/></svg>
+        </div>
+        <!-- Warli tarpa dance circle (right) -->
+        <div class="text-white hidden lg:block absolute right-2 xl:right-8 top-1/2 -translate-y-1/2 w-[260px] xl:w-[320px] opacity-20 pointer-events-none" aria-hidden="true">
+            <svg class="warli-dance" viewBox="0 0 320 320" role="img" aria-label="Warli-style tarpa dance circle" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="298" cy="160" r="1.4"/><circle cx="296.8" cy="178" r="1.4"/><circle cx="293.3" cy="195.7" r="1.4"/><circle cx="287.5" cy="212.8" r="1.4"/><circle cx="279.5" cy="229" r="1.4"/><circle cx="269.5" cy="244" r="1.4"/><circle cx="257.6" cy="257.6" r="1.4"/><circle cx="244" cy="269.5" r="1.4"/><circle cx="229" cy="279.5" r="1.4"/><circle cx="212.8" cy="287.5" r="1.4"/><circle cx="195.7" cy="293.3" r="1.4"/><circle cx="178" cy="296.8" r="1.4"/><circle cx="160" cy="298" r="1.4"/><circle cx="142" cy="296.8" r="1.4"/><circle cx="124.3" cy="293.3" r="1.4"/><circle cx="107.2" cy="287.5" r="1.4"/><circle cx="91" cy="279.5" r="1.4"/><circle cx="76" cy="269.5" r="1.4"/><circle cx="62.4" cy="257.6" r="1.4"/><circle cx="50.5" cy="244" r="1.4"/><circle cx="40.5" cy="229" r="1.4"/><circle cx="32.5" cy="212.8" r="1.4"/><circle cx="26.7" cy="195.7" r="1.4"/><circle cx="23.2" cy="178" r="1.4"/><circle cx="22" cy="160" r="1.4"/><circle cx="23.2" cy="142" r="1.4"/><circle cx="26.7" cy="124.3" r="1.4"/><circle cx="32.5" cy="107.2" r="1.4"/><circle cx="40.5" cy="91" r="1.4"/><circle cx="50.5" cy="76" r="1.4"/><circle cx="62.4" cy="62.4" r="1.4"/><circle cx="76" cy="50.5" r="1.4"/><circle cx="91" cy="40.5" r="1.4"/><circle cx="107.2" cy="32.5" r="1.4"/><circle cx="124.3" cy="26.7" r="1.4"/><circle cx="142" cy="23.2" r="1.4"/><circle cx="160" cy="22" r="1.4"/><circle cx="178" cy="23.2" r="1.4"/><circle cx="195.7" cy="26.7" r="1.4"/><circle cx="212.8" cy="32.5" r="1.4"/><circle cx="229" cy="40.5" r="1.4"/><circle cx="244" cy="50.5" r="1.4"/><circle cx="257.6" cy="62.4" r="1.4"/><circle cx="269.5" cy="76" r="1.4"/><circle cx="279.5" cy="91" r="1.4"/><circle cx="287.5" cy="107.2" r="1.4"/><circle cx="293.3" cy="124.3" r="1.4"/><circle cx="296.8" cy="142" r="1.4"/><g transform="translate(160 68) rotate(0)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 77.1) rotate(25.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 102.6) rotate(51.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 139.5) rotate(77.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 180.5) rotate(102.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 217.4) rotate(128.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 242.9) rotate(154.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 252) rotate(180)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 242.9) rotate(205.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 217.4) rotate(231.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 180.5) rotate(257.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 139.5) rotate(282.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 102.6) rotate(308.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 77.1) rotate(334.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 170) rotate(0)"><path d="M-8.8 -12.5L8.8 -12.5L0 0Z M0 0L8.8 12.5L-8.8 12.5Z"/><circle cx="0" cy="-17.8" r="4.5"/><path d="M1.2 -23.8L22.5 -40" stroke-width="3" fill="none"/><path d="M18.8 -42.5Q27.5 -46.2 28.8 -35Z"/><path d="M-8.8 -12.5L-7.5 -20L2.5 -22.5" fill="none" stroke-width="2"/><path d="M8.8 -12.5L11.2 -16.2L3.8 -21.2" fill="none" stroke-width="2"/><path d="M-5.2 12.5L-13.8 20L-11.2 27.5" fill="none" stroke-width="2"/><path d="M5.2 12.5L13.8 20L11.2 27.5" fill="none" stroke-width="2"/></g><circle cx="200" cy="160" r="1.1"/><circle cx="198" cy="172.4" r="1.1"/><circle cx="192.4" cy="183.5" r="1.1"/><circle cx="183.5" cy="192.4" r="1.1"/><circle cx="172.4" cy="198" r="1.1"/><circle cx="160" cy="200" r="1.1"/><circle cx="147.6" cy="198" r="1.1"/><circle cx="136.5" cy="192.4" r="1.1"/><circle cx="127.6" cy="183.5" r="1.1"/><circle cx="122" cy="172.4" r="1.1"/><circle cx="120" cy="160" r="1.1"/><circle cx="122" cy="147.6" r="1.1"/><circle cx="127.6" cy="136.5" r="1.1"/><circle cx="136.5" cy="127.6" r="1.1"/><circle cx="147.6" cy="122" r="1.1"/><circle cx="160" cy="120" r="1.1"/><circle cx="172.4" cy="122" r="1.1"/><circle cx="183.5" cy="127.6" r="1.1"/><circle cx="192.4" cy="136.5" r="1.1"/><circle cx="198" cy="147.6" r="1.1"/></svg>
+        </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-6">
                 <span>⚡ Built for SIH 2026</span>
                 <span>&bull;</span>
                 <span>Transforming Skilling Analytics</span>
             </div>
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
                 Turning "Certified" Into <span class="text-teal-400">Employed</span>.
             </h1>
             <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal">
@@ -83,15 +131,23 @@
                 <a href="#dashboard" class="w-full sm:w-auto bg-teal-600 hover:bg-teal-500 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition">
                     Explore Analytics Dashboard
                 </a>
-                <a href="#registration" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-8 py-3.5 rounded-xl transition">
-                    Register a Trainee &rarr;
-                </a>
+                <button type="button" data-sa-open class="w-full sm:w-auto bg-saffron hover:bg-orange-600 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg transition">
+                    Take Self-Assessment
+                </button>
+            </div>
+            <a href="#registration" class="inline-block mt-5 text-sm font-semibold text-slate-300 hover:text-white transition">Register a Trainee &rarr;</a>
+            <!-- Warli dancers row (mobile / tablet) -->
+            <div class="text-white lg:hidden mt-10 mx-auto w-64 opacity-25" aria-hidden="true">
+                <svg class="warli-divider" viewBox="0 0 280 52" role="img" aria-label="Warli-style dancers" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><g transform="translate(20 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(50 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(80 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(110 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(140 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(170 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(200 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(230 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(260 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g></svg>
             </div>
         </div>
+        <div class="paithani-strip absolute bottom-0 inset-x-0" aria-hidden="true"></div>
     </section>
 
     <!-- 2. The Problem Section -->
-    <section id="problem" class="py-16 bg-white border-b border-slate-200">
+    <section id="problem" class="art-host py-16 bg-white border-b border-slate-200">
+            <div class="art warli hidden md:block absolute pointer-events-none top-8 left-6 xl:left-16 w-20 opacity-20" aria-hidden="true"><svg class="warli-sun" viewBox="0 0 80 80" role="img" aria-label="Warli-style sun" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="16"/><path d="M59 40L66 40" stroke-width="1.6" fill="none"/><path d="M57.6 47.3L64 49.9" stroke-width="1.6" fill="none"/><path d="M53.4 53.4L58.4 58.4" stroke-width="1.6" fill="none"/><path d="M47.3 57.6L49.9 64" stroke-width="1.6" fill="none"/><path d="M40 59L40 66" stroke-width="1.6" fill="none"/><path d="M32.7 57.6L30.1 64" stroke-width="1.6" fill="none"/><path d="M26.6 53.4L21.6 58.4" stroke-width="1.6" fill="none"/><path d="M22.4 47.3L16 49.9" stroke-width="1.6" fill="none"/><path d="M21 40L14 40" stroke-width="1.6" fill="none"/><path d="M22.4 32.7L16 30.1" stroke-width="1.6" fill="none"/><path d="M26.6 26.6L21.6 21.6" stroke-width="1.6" fill="none"/><path d="M32.7 22.4L30.1 16" stroke-width="1.6" fill="none"/><path d="M40 21L40 14" stroke-width="1.6" fill="none"/><path d="M47.3 22.4L49.9 16" stroke-width="1.6" fill="none"/><path d="M53.4 26.6L58.4 21.6" stroke-width="1.6" fill="none"/><path d="M57.6 32.7L64 30.1" stroke-width="1.6" fill="none"/></svg></div>
+            <div class="art warli hidden lg:block absolute pointer-events-none top-6 right-6 xl:right-16 w-32 opacity-[0.18]" aria-hidden="true"><svg class="warli-tree" viewBox="0 0 220 230" role="img" aria-label="Warli-style tree scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M110 215L110 45" stroke-width="3" fill="none"/><path d="M110 155.5L38.6 130.5" stroke-width="1.4" fill="none"/><ellipse cx="92.2" cy="146.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 146.3)"/><ellipse cx="74.3" cy="140" rx="1.6" ry="3.2" transform="rotate(-25 74.3 140)"/><ellipse cx="56.5" cy="133.8" rx="1.6" ry="3.2" transform="rotate(-25 56.5 133.8)"/><path d="M110 155.5L181.4 130.5" stroke-width="1.4" fill="none"/><ellipse cx="127.8" cy="146.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 146.3)"/><ellipse cx="145.7" cy="140" rx="1.6" ry="3.2" transform="rotate(25 145.7 140)"/><ellipse cx="163.6" cy="133.8" rx="1.6" ry="3.2" transform="rotate(25 163.6 133.8)"/><path d="M110 142.8L44.5 119.8" stroke-width="1.4" fill="none"/><ellipse cx="93.6" cy="134" rx="1.6" ry="3.2" transform="rotate(-25 93.6 134)"/><ellipse cx="77.3" cy="128.3" rx="1.6" ry="3.2" transform="rotate(-25 77.3 128.3)"/><ellipse cx="60.9" cy="122.6" rx="1.6" ry="3.2" transform="rotate(-25 60.9 122.6)"/><path d="M110 142.8L175.4 119.8" stroke-width="1.4" fill="none"/><ellipse cx="126.4" cy="134" rx="1.6" ry="3.2" transform="rotate(25 126.4 134)"/><ellipse cx="142.7" cy="128.3" rx="1.6" ry="3.2" transform="rotate(25 142.7 128.3)"/><ellipse cx="159.1" cy="122.6" rx="1.6" ry="3.2" transform="rotate(25 159.1 122.6)"/><path d="M110 130L50.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="95.1" cy="121.8" rx="1.6" ry="3.2" transform="rotate(-25 95.1 121.8)"/><ellipse cx="80.2" cy="116.6" rx="1.6" ry="3.2" transform="rotate(-25 80.2 116.6)"/><ellipse cx="65.4" cy="111.4" rx="1.6" ry="3.2" transform="rotate(-25 65.4 111.4)"/><path d="M110 130L169.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="124.9" cy="121.8" rx="1.6" ry="3.2" transform="rotate(25 124.9 121.8)"/><ellipse cx="139.8" cy="116.6" rx="1.6" ry="3.2" transform="rotate(25 139.8 116.6)"/><ellipse cx="154.6" cy="111.4" rx="1.6" ry="3.2" transform="rotate(25 154.6 111.4)"/><path d="M110 117.2L56.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="96.6" cy="109.6" rx="1.6" ry="3.2" transform="rotate(-25 96.6 109.6)"/><ellipse cx="83.2" cy="104.9" rx="1.6" ry="3.2" transform="rotate(-25 83.2 104.9)"/><ellipse cx="69.8" cy="100.2" rx="1.6" ry="3.2" transform="rotate(-25 69.8 100.2)"/><path d="M110 117.2L163.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="123.4" cy="109.6" rx="1.6" ry="3.2" transform="rotate(25 123.4 109.6)"/><ellipse cx="136.8" cy="104.9" rx="1.6" ry="3.2" transform="rotate(25 136.8 104.9)"/><ellipse cx="150.2" cy="100.2" rx="1.6" ry="3.2" transform="rotate(25 150.2 100.2)"/><path d="M110 104.5L62.4 87.8" stroke-width="1.4" fill="none"/><ellipse cx="98.1" cy="97.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 97.3)"/><ellipse cx="86.2" cy="93.2" rx="1.6" ry="3.2" transform="rotate(-25 86.2 93.2)"/><ellipse cx="74.3" cy="89" rx="1.6" ry="3.2" transform="rotate(-25 74.3 89)"/><path d="M110 104.5L157.6 87.8" stroke-width="1.4" fill="none"/><ellipse cx="121.9" cy="97.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 97.3)"/><ellipse cx="133.8" cy="93.2" rx="1.6" ry="3.2" transform="rotate(25 133.8 93.2)"/><ellipse cx="145.7" cy="89" rx="1.6" ry="3.2" transform="rotate(25 145.7 89)"/><path d="M110 91.8L68.4 77.2" stroke-width="1.4" fill="none"/><ellipse cx="99.6" cy="85.1" rx="1.6" ry="3.2" transform="rotate(-25 99.6 85.1)"/><ellipse cx="89.2" cy="81.5" rx="1.6" ry="3.2" transform="rotate(-25 89.2 81.5)"/><ellipse cx="78.8" cy="77.8" rx="1.6" ry="3.2" transform="rotate(-25 78.8 77.8)"/><path d="M110 91.8L151.6 77.2" stroke-width="1.4" fill="none"/><ellipse cx="120.4" cy="85.1" rx="1.6" ry="3.2" transform="rotate(25 120.4 85.1)"/><ellipse cx="130.8" cy="81.5" rx="1.6" ry="3.2" transform="rotate(25 130.8 81.5)"/><ellipse cx="141.2" cy="77.8" rx="1.6" ry="3.2" transform="rotate(25 141.2 77.8)"/><path d="M110 79L74.3 66.5" stroke-width="1.4" fill="none"/><ellipse cx="101.1" cy="72.9" rx="1.6" ry="3.2" transform="rotate(-25 101.1 72.9)"/><ellipse cx="92.2" cy="69.8" rx="1.6" ry="3.2" transform="rotate(-25 92.2 69.8)"/><ellipse cx="83.2" cy="66.6" rx="1.6" ry="3.2" transform="rotate(-25 83.2 66.6)"/><path d="M110 79L145.7 66.5" stroke-width="1.4" fill="none"/><ellipse cx="118.9" cy="72.9" rx="1.6" ry="3.2" transform="rotate(25 118.9 72.9)"/><ellipse cx="127.8" cy="69.8" rx="1.6" ry="3.2" transform="rotate(25 127.8 69.8)"/><ellipse cx="136.8" cy="66.6" rx="1.6" ry="3.2" transform="rotate(25 136.8 66.6)"/><path d="M110 66.2L80.2 55.8" stroke-width="1.4" fill="none"/><ellipse cx="102.6" cy="60.6" rx="1.6" ry="3.2" transform="rotate(-25 102.6 60.6)"/><ellipse cx="95.1" cy="58" rx="1.6" ry="3.2" transform="rotate(-25 95.1 58)"/><ellipse cx="87.7" cy="55.4" rx="1.6" ry="3.2" transform="rotate(-25 87.7 55.4)"/><path d="M110 66.2L139.8 55.8" stroke-width="1.4" fill="none"/><ellipse cx="117.4" cy="60.6" rx="1.6" ry="3.2" transform="rotate(25 117.4 60.6)"/><ellipse cx="124.9" cy="58" rx="1.6" ry="3.2" transform="rotate(25 124.9 58)"/><ellipse cx="132.3" cy="55.4" rx="1.6" ry="3.2" transform="rotate(25 132.3 55.4)"/><path d="M110 53.5L86.2 45.2" stroke-width="1.4" fill="none"/><ellipse cx="104" cy="48.4" rx="1.6" ry="3.2" transform="rotate(-25 104 48.4)"/><ellipse cx="98.1" cy="46.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 46.3)"/><ellipse cx="92.2" cy="44.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 44.3)"/><path d="M110 53.5L133.8 45.2" stroke-width="1.4" fill="none"/><ellipse cx="116" cy="48.4" rx="1.6" ry="3.2" transform="rotate(25 116 48.4)"/><ellipse cx="121.9" cy="46.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 46.3)"/><ellipse cx="127.8" cy="44.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 44.3)"/><g transform="translate(50 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-12 -4L-16 -12" fill="none" stroke-width="1.6"/><path d="M7 -10L12 -4L16 -12" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><g transform="translate(172 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-11 -3L-9 3" fill="none" stroke-width="1.6"/><path d="M7 -10L13 -5L19 -2" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><path d="M10 217L210 217" stroke-width="2" fill="none"/></svg></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-12">
                 <h2 class="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">The Blind Spot in Public Skilling</h2>
@@ -119,9 +175,14 @@
     </section>
 
     <!-- 3. How SkillSetu Works (Product Flow) -->
-    <section id="how-it-works" class="py-16 bg-slate-50 border-b border-slate-200">
+    <section id="how-it-works" class="art-host py-16 bg-slate-50 border-b border-slate-200">
+            <div class="art warli hidden md:block absolute pointer-events-none -bottom-1 left-4 xl:left-12 w-52 opacity-[0.18]" aria-hidden="true"><svg class="warli-farm" viewBox="0 0 220 150" role="img" aria-label="Warli-style farm scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M95 135L95 96.5L165 96.5L165 135" fill="none" stroke-width="1.8"/><path d="M89 96.5L130 65L171 96.5Z"/><path d="M125 135L125 122L135 122L135 135" fill="none" stroke-width="1.6"/><g transform="translate(45 111) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-11 -3L-9 3" fill="none" stroke-width="1.6"/><path d="M7 -10L13 -5L19 -2" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><g transform="translate(200 111) rotate(0)"><path d="M-6.3 -9L6.3 -9L0 0Z M0 0L6.3 9L-6.3 9Z"/><circle cx="0" cy="-12.8" r="3.2"/><path d="M-6.3 -9L-10.8 -3.6L-14.4 -10.8" fill="none" stroke-width="1.4"/><path d="M6.3 -9L10.8 -3.6L14.4 -10.8" fill="none" stroke-width="1.4"/><path d="M-3.8 9L-8.1 15.3L-7.2 20.7" fill="none" stroke-width="1.4"/><path d="M3.8 9L9 14.4L10.8 19.8" fill="none" stroke-width="1.4"/></g><path d="M5 137L215 137" stroke-width="2" fill="none"/></svg></div>
+            <div class="art warli hidden md:block absolute pointer-events-none -top-16 -right-16 w-64 opacity-[0.12]" aria-hidden="true"><svg class="warli-dance" viewBox="0 0 320 320" role="img" aria-label="Warli-style tarpa dance circle" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="298" cy="160" r="1.4"/><circle cx="296.8" cy="178" r="1.4"/><circle cx="293.3" cy="195.7" r="1.4"/><circle cx="287.5" cy="212.8" r="1.4"/><circle cx="279.5" cy="229" r="1.4"/><circle cx="269.5" cy="244" r="1.4"/><circle cx="257.6" cy="257.6" r="1.4"/><circle cx="244" cy="269.5" r="1.4"/><circle cx="229" cy="279.5" r="1.4"/><circle cx="212.8" cy="287.5" r="1.4"/><circle cx="195.7" cy="293.3" r="1.4"/><circle cx="178" cy="296.8" r="1.4"/><circle cx="160" cy="298" r="1.4"/><circle cx="142" cy="296.8" r="1.4"/><circle cx="124.3" cy="293.3" r="1.4"/><circle cx="107.2" cy="287.5" r="1.4"/><circle cx="91" cy="279.5" r="1.4"/><circle cx="76" cy="269.5" r="1.4"/><circle cx="62.4" cy="257.6" r="1.4"/><circle cx="50.5" cy="244" r="1.4"/><circle cx="40.5" cy="229" r="1.4"/><circle cx="32.5" cy="212.8" r="1.4"/><circle cx="26.7" cy="195.7" r="1.4"/><circle cx="23.2" cy="178" r="1.4"/><circle cx="22" cy="160" r="1.4"/><circle cx="23.2" cy="142" r="1.4"/><circle cx="26.7" cy="124.3" r="1.4"/><circle cx="32.5" cy="107.2" r="1.4"/><circle cx="40.5" cy="91" r="1.4"/><circle cx="50.5" cy="76" r="1.4"/><circle cx="62.4" cy="62.4" r="1.4"/><circle cx="76" cy="50.5" r="1.4"/><circle cx="91" cy="40.5" r="1.4"/><circle cx="107.2" cy="32.5" r="1.4"/><circle cx="124.3" cy="26.7" r="1.4"/><circle cx="142" cy="23.2" r="1.4"/><circle cx="160" cy="22" r="1.4"/><circle cx="178" cy="23.2" r="1.4"/><circle cx="195.7" cy="26.7" r="1.4"/><circle cx="212.8" cy="32.5" r="1.4"/><circle cx="229" cy="40.5" r="1.4"/><circle cx="244" cy="50.5" r="1.4"/><circle cx="257.6" cy="62.4" r="1.4"/><circle cx="269.5" cy="76" r="1.4"/><circle cx="279.5" cy="91" r="1.4"/><circle cx="287.5" cy="107.2" r="1.4"/><circle cx="293.3" cy="124.3" r="1.4"/><circle cx="296.8" cy="142" r="1.4"/><g transform="translate(160 68) rotate(0)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 77.1) rotate(25.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 102.6) rotate(51.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 139.5) rotate(77.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 180.5) rotate(102.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 217.4) rotate(128.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 242.9) rotate(154.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 252) rotate(180)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 242.9) rotate(205.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 217.4) rotate(231.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 180.5) rotate(257.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 139.5) rotate(282.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 102.6) rotate(308.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 77.1) rotate(334.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 170) rotate(0)"><path d="M-8.8 -12.5L8.8 -12.5L0 0Z M0 0L8.8 12.5L-8.8 12.5Z"/><circle cx="0" cy="-17.8" r="4.5"/><path d="M1.2 -23.8L22.5 -40" stroke-width="3" fill="none"/><path d="M18.8 -42.5Q27.5 -46.2 28.8 -35Z"/><path d="M-8.8 -12.5L-7.5 -20L2.5 -22.5" fill="none" stroke-width="2"/><path d="M8.8 -12.5L11.2 -16.2L3.8 -21.2" fill="none" stroke-width="2"/><path d="M-5.2 12.5L-13.8 20L-11.2 27.5" fill="none" stroke-width="2"/><path d="M5.2 12.5L13.8 20L11.2 27.5" fill="none" stroke-width="2"/></g><circle cx="200" cy="160" r="1.1"/><circle cx="198" cy="172.4" r="1.1"/><circle cx="192.4" cy="183.5" r="1.1"/><circle cx="183.5" cy="192.4" r="1.1"/><circle cx="172.4" cy="198" r="1.1"/><circle cx="160" cy="200" r="1.1"/><circle cx="147.6" cy="198" r="1.1"/><circle cx="136.5" cy="192.4" r="1.1"/><circle cx="127.6" cy="183.5" r="1.1"/><circle cx="122" cy="172.4" r="1.1"/><circle cx="120" cy="160" r="1.1"/><circle cx="122" cy="147.6" r="1.1"/><circle cx="127.6" cy="136.5" r="1.1"/><circle cx="136.5" cy="127.6" r="1.1"/><circle cx="147.6" cy="122" r="1.1"/><circle cx="160" cy="120" r="1.1"/><circle cx="172.4" cy="122" r="1.1"/><circle cx="183.5" cy="127.6" r="1.1"/><circle cx="192.4" cy="136.5" r="1.1"/><circle cx="198" cy="147.6" r="1.1"/></svg></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="warli mx-auto w-48 opacity-40 mb-4" aria-hidden="true">
+                    <svg class="warli-divider" viewBox="0 0 280 52" role="img" aria-label="Warli-style dancers" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><g transform="translate(20 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(50 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(80 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(110 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(140 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(170 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(200 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(230 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g><g transform="translate(260 26) rotate(0)"><path d="M-5.6 -8L5.6 -8L0 0Z M0 0L5.6 8L-5.6 8Z"/><circle cx="0" cy="-11.4" r="2.9"/><path d="M-5.6 -8L-10.4 -4.8L-14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M5.6 -8L10.4 -4.8L14.4 -6.4" fill="none" stroke-width="1.3"/><path d="M-3.4 8L-8.8 12.8L-7.2 17.6" fill="none" stroke-width="1.3"/><path d="M3.4 8L8.8 12.8L7.2 17.6" fill="none" stroke-width="1.3"/></g></svg>
+                </div>
                 <h2 class="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">End-to-End Architecture</h2>
                 <h3 class="text-3xl font-bold text-slate-900">How SkillSetu Closes the Loop</h3>
             </div>
@@ -158,7 +219,9 @@
     <main class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
 
         <!-- 4. Live Demo: Trainee Registration Form -->
-        <section id="registration" class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+        <section id="registration" class="art-host bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div class="art warli hidden md:block absolute pointer-events-none bottom-0 right-4 w-56 opacity-[0.16]" aria-hidden="true"><svg class="warli-farm" viewBox="0 0 220 150" role="img" aria-label="Warli-style farm scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M95 135L95 96.5L165 96.5L165 135" fill="none" stroke-width="1.8"/><path d="M89 96.5L130 65L171 96.5Z"/><path d="M125 135L125 122L135 122L135 135" fill="none" stroke-width="1.6"/><g transform="translate(45 111) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-11 -3L-9 3" fill="none" stroke-width="1.6"/><path d="M7 -10L13 -5L19 -2" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><g transform="translate(200 111) rotate(0)"><path d="M-6.3 -9L6.3 -9L0 0Z M0 0L6.3 9L-6.3 9Z"/><circle cx="0" cy="-12.8" r="3.2"/><path d="M-6.3 -9L-10.8 -3.6L-14.4 -10.8" fill="none" stroke-width="1.4"/><path d="M6.3 -9L10.8 -3.6L14.4 -10.8" fill="none" stroke-width="1.4"/><path d="M-3.8 9L-8.1 15.3L-7.2 20.7" fill="none" stroke-width="1.4"/><path d="M3.8 9L9 14.4L10.8 19.8" fill="none" stroke-width="1.4"/></g><path d="M5 137L215 137" stroke-width="2" fill="none"/></svg></div>
+            <div class="art warli hidden md:block absolute pointer-events-none top-6 left-8 w-16 opacity-[0.15]" aria-hidden="true"><svg class="warli-sun" viewBox="0 0 80 80" role="img" aria-label="Warli-style sun" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="16"/><path d="M59 40L66 40" stroke-width="1.6" fill="none"/><path d="M57.6 47.3L64 49.9" stroke-width="1.6" fill="none"/><path d="M53.4 53.4L58.4 58.4" stroke-width="1.6" fill="none"/><path d="M47.3 57.6L49.9 64" stroke-width="1.6" fill="none"/><path d="M40 59L40 66" stroke-width="1.6" fill="none"/><path d="M32.7 57.6L30.1 64" stroke-width="1.6" fill="none"/><path d="M26.6 53.4L21.6 58.4" stroke-width="1.6" fill="none"/><path d="M22.4 47.3L16 49.9" stroke-width="1.6" fill="none"/><path d="M21 40L14 40" stroke-width="1.6" fill="none"/><path d="M22.4 32.7L16 30.1" stroke-width="1.6" fill="none"/><path d="M26.6 26.6L21.6 21.6" stroke-width="1.6" fill="none"/><path d="M32.7 22.4L30.1 16" stroke-width="1.6" fill="none"/><path d="M40 21L40 14" stroke-width="1.6" fill="none"/><path d="M47.3 22.4L49.9 16" stroke-width="1.6" fill="none"/><path d="M53.4 26.6L58.4 21.6" stroke-width="1.6" fill="none"/><path d="M57.6 32.7L64 30.1" stroke-width="1.6" fill="none"/></svg></div>
             <div class="max-w-2xl mx-auto">
                 <div class="mb-8 text-center">
                     <span class="text-xs font-semibold px-3 py-1 bg-blue-50 text-primary rounded-full">Interactive Demo #1</span>
@@ -170,18 +233,18 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Full Name</label>
-                            <input type="text" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. Rahul Patil">
+                            <input type="text" id="regName" required maxlength="80" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. Rahul Patil">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Phone Number</label>
-                            <input type="tel" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. 9876543210">
+                            <input type="tel" id="regPhone" required inputmode="numeric" pattern="[6-9][0-9]{9}" maxlength="10" title="Enter a valid 10-digit Indian mobile number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. 9876543210">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Skilling Programme</label>
-                            <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                            <select id="regProgramme" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
                                 <option>CNC Machine Operator (PMKVY)</option>
                                 <option>Full Stack Web Developer (MSDE)</option>
                                 <option>Healthcare General Duty Assistant</option>
@@ -190,11 +253,11 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">District (Maharashtra)</label>
-                            <select class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                            <select id="regDistrict" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
                                 <option>Pune</option>
                                 <option>Nagpur</option>
                                 <option>Thane</option>
-                                <option>Aurangabad</option>
+                                <option>Chhatrapati Sambhajinagar</option>
                                 <option>Nashik</option>
                             </select>
                         </div>
@@ -219,13 +282,15 @@
                     <p class="font-bold flex items-center gap-2">
                         <span>✅ Record Created Successfully!</span>
                     </p>
-                    <p class="mt-1">Backend connection simulated: Trainee registered in PostgreSQL. 30-day follow-up trigger queued in MSG91 messaging worker queue.</p>
+                    <p class="mt-1" id="regSuccessText">Consent recorded and longitudinal record initialised.</p>
+                    <div class="mt-3 grid grid-cols-3 gap-2 text-center" id="regSchedule"></div>
                 </div>
             </div>
         </section>
 
         <!-- 5. Live Demo: Follow-Up + AI Reasoning -->
-        <section id="ai-demo" class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+        <section id="ai-demo" class="art-host bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div class="art warli hidden md:block absolute pointer-events-none bottom-0 left-4 w-48 opacity-[0.16]" aria-hidden="true"><svg class="warli-tree" viewBox="0 0 220 230" role="img" aria-label="Warli-style tree scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M110 215L110 45" stroke-width="3" fill="none"/><path d="M110 155.5L38.6 130.5" stroke-width="1.4" fill="none"/><ellipse cx="92.2" cy="146.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 146.3)"/><ellipse cx="74.3" cy="140" rx="1.6" ry="3.2" transform="rotate(-25 74.3 140)"/><ellipse cx="56.5" cy="133.8" rx="1.6" ry="3.2" transform="rotate(-25 56.5 133.8)"/><path d="M110 155.5L181.4 130.5" stroke-width="1.4" fill="none"/><ellipse cx="127.8" cy="146.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 146.3)"/><ellipse cx="145.7" cy="140" rx="1.6" ry="3.2" transform="rotate(25 145.7 140)"/><ellipse cx="163.6" cy="133.8" rx="1.6" ry="3.2" transform="rotate(25 163.6 133.8)"/><path d="M110 142.8L44.5 119.8" stroke-width="1.4" fill="none"/><ellipse cx="93.6" cy="134" rx="1.6" ry="3.2" transform="rotate(-25 93.6 134)"/><ellipse cx="77.3" cy="128.3" rx="1.6" ry="3.2" transform="rotate(-25 77.3 128.3)"/><ellipse cx="60.9" cy="122.6" rx="1.6" ry="3.2" transform="rotate(-25 60.9 122.6)"/><path d="M110 142.8L175.4 119.8" stroke-width="1.4" fill="none"/><ellipse cx="126.4" cy="134" rx="1.6" ry="3.2" transform="rotate(25 126.4 134)"/><ellipse cx="142.7" cy="128.3" rx="1.6" ry="3.2" transform="rotate(25 142.7 128.3)"/><ellipse cx="159.1" cy="122.6" rx="1.6" ry="3.2" transform="rotate(25 159.1 122.6)"/><path d="M110 130L50.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="95.1" cy="121.8" rx="1.6" ry="3.2" transform="rotate(-25 95.1 121.8)"/><ellipse cx="80.2" cy="116.6" rx="1.6" ry="3.2" transform="rotate(-25 80.2 116.6)"/><ellipse cx="65.4" cy="111.4" rx="1.6" ry="3.2" transform="rotate(-25 65.4 111.4)"/><path d="M110 130L169.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="124.9" cy="121.8" rx="1.6" ry="3.2" transform="rotate(25 124.9 121.8)"/><ellipse cx="139.8" cy="116.6" rx="1.6" ry="3.2" transform="rotate(25 139.8 116.6)"/><ellipse cx="154.6" cy="111.4" rx="1.6" ry="3.2" transform="rotate(25 154.6 111.4)"/><path d="M110 117.2L56.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="96.6" cy="109.6" rx="1.6" ry="3.2" transform="rotate(-25 96.6 109.6)"/><ellipse cx="83.2" cy="104.9" rx="1.6" ry="3.2" transform="rotate(-25 83.2 104.9)"/><ellipse cx="69.8" cy="100.2" rx="1.6" ry="3.2" transform="rotate(-25 69.8 100.2)"/><path d="M110 117.2L163.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="123.4" cy="109.6" rx="1.6" ry="3.2" transform="rotate(25 123.4 109.6)"/><ellipse cx="136.8" cy="104.9" rx="1.6" ry="3.2" transform="rotate(25 136.8 104.9)"/><ellipse cx="150.2" cy="100.2" rx="1.6" ry="3.2" transform="rotate(25 150.2 100.2)"/><path d="M110 104.5L62.4 87.8" stroke-width="1.4" fill="none"/><ellipse cx="98.1" cy="97.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 97.3)"/><ellipse cx="86.2" cy="93.2" rx="1.6" ry="3.2" transform="rotate(-25 86.2 93.2)"/><ellipse cx="74.3" cy="89" rx="1.6" ry="3.2" transform="rotate(-25 74.3 89)"/><path d="M110 104.5L157.6 87.8" stroke-width="1.4" fill="none"/><ellipse cx="121.9" cy="97.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 97.3)"/><ellipse cx="133.8" cy="93.2" rx="1.6" ry="3.2" transform="rotate(25 133.8 93.2)"/><ellipse cx="145.7" cy="89" rx="1.6" ry="3.2" transform="rotate(25 145.7 89)"/><path d="M110 91.8L68.4 77.2" stroke-width="1.4" fill="none"/><ellipse cx="99.6" cy="85.1" rx="1.6" ry="3.2" transform="rotate(-25 99.6 85.1)"/><ellipse cx="89.2" cy="81.5" rx="1.6" ry="3.2" transform="rotate(-25 89.2 81.5)"/><ellipse cx="78.8" cy="77.8" rx="1.6" ry="3.2" transform="rotate(-25 78.8 77.8)"/><path d="M110 91.8L151.6 77.2" stroke-width="1.4" fill="none"/><ellipse cx="120.4" cy="85.1" rx="1.6" ry="3.2" transform="rotate(25 120.4 85.1)"/><ellipse cx="130.8" cy="81.5" rx="1.6" ry="3.2" transform="rotate(25 130.8 81.5)"/><ellipse cx="141.2" cy="77.8" rx="1.6" ry="3.2" transform="rotate(25 141.2 77.8)"/><path d="M110 79L74.3 66.5" stroke-width="1.4" fill="none"/><ellipse cx="101.1" cy="72.9" rx="1.6" ry="3.2" transform="rotate(-25 101.1 72.9)"/><ellipse cx="92.2" cy="69.8" rx="1.6" ry="3.2" transform="rotate(-25 92.2 69.8)"/><ellipse cx="83.2" cy="66.6" rx="1.6" ry="3.2" transform="rotate(-25 83.2 66.6)"/><path d="M110 79L145.7 66.5" stroke-width="1.4" fill="none"/><ellipse cx="118.9" cy="72.9" rx="1.6" ry="3.2" transform="rotate(25 118.9 72.9)"/><ellipse cx="127.8" cy="69.8" rx="1.6" ry="3.2" transform="rotate(25 127.8 69.8)"/><ellipse cx="136.8" cy="66.6" rx="1.6" ry="3.2" transform="rotate(25 136.8 66.6)"/><path d="M110 66.2L80.2 55.8" stroke-width="1.4" fill="none"/><ellipse cx="102.6" cy="60.6" rx="1.6" ry="3.2" transform="rotate(-25 102.6 60.6)"/><ellipse cx="95.1" cy="58" rx="1.6" ry="3.2" transform="rotate(-25 95.1 58)"/><ellipse cx="87.7" cy="55.4" rx="1.6" ry="3.2" transform="rotate(-25 87.7 55.4)"/><path d="M110 66.2L139.8 55.8" stroke-width="1.4" fill="none"/><ellipse cx="117.4" cy="60.6" rx="1.6" ry="3.2" transform="rotate(25 117.4 60.6)"/><ellipse cx="124.9" cy="58" rx="1.6" ry="3.2" transform="rotate(25 124.9 58)"/><ellipse cx="132.3" cy="55.4" rx="1.6" ry="3.2" transform="rotate(25 132.3 55.4)"/><path d="M110 53.5L86.2 45.2" stroke-width="1.4" fill="none"/><ellipse cx="104" cy="48.4" rx="1.6" ry="3.2" transform="rotate(-25 104 48.4)"/><ellipse cx="98.1" cy="46.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 46.3)"/><ellipse cx="92.2" cy="44.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 44.3)"/><path d="M110 53.5L133.8 45.2" stroke-width="1.4" fill="none"/><ellipse cx="116" cy="48.4" rx="1.6" ry="3.2" transform="rotate(25 116 48.4)"/><ellipse cx="121.9" cy="46.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 46.3)"/><ellipse cx="127.8" cy="44.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 44.3)"/><g transform="translate(50 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-12 -4L-16 -12" fill="none" stroke-width="1.6"/><path d="M7 -10L12 -4L16 -12" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><g transform="translate(172 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-11 -3L-9 3" fill="none" stroke-width="1.6"/><path d="M7 -10L13 -5L19 -2" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><path d="M10 217L210 217" stroke-width="2" fill="none"/></svg></div>
             <div class="max-w-2xl mx-auto">
                 <div class="mb-8 text-center">
                     <span class="text-xs font-semibold px-3 py-1 bg-teal-50 text-teal-800 rounded-full">Interactive Demo #2</span>
@@ -254,7 +319,7 @@
 
                     <div id="reasonContainer">
                         <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Trainee Feedback / Reason (Voice note transcription or SMS reply)</label>
-                        <textarea id="traineeFeedback" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="Type or simulate speech transcription... e.g., 'Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.'">Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.</textarea>
+                        <textarea id="traineeFeedback" rows="3" maxlength="2000" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="Type or simulate speech transcription... e.g., 'Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.'">Companies in Pune want advanced CNC automation experience which wasn't covered deeply in our lab, and local wage offers are too low for my rent.</textarea>
                     </div>
 
                     <button id="runAiBtn" class="w-full bg-secondary hover:bg-teal-800 text-white font-semibold py-3 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
@@ -282,11 +347,39 @@
             </div>
         </section>
 
-        <!-- 6. Analytics Dashboard -->
+        <!-- 6. Live Demo: Skill Gap Self-Assessment -->
+        <section id="self-assessment" class="relative overflow-hidden bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+            <div class="warli hidden md:block absolute -right-10 -bottom-10 w-56 opacity-10 pointer-events-none" aria-hidden="true">
+                <svg class="warli-dance" viewBox="0 0 320 320" role="img" aria-label="Warli-style tarpa dance circle" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="298" cy="160" r="1.4"/><circle cx="296.8" cy="178" r="1.4"/><circle cx="293.3" cy="195.7" r="1.4"/><circle cx="287.5" cy="212.8" r="1.4"/><circle cx="279.5" cy="229" r="1.4"/><circle cx="269.5" cy="244" r="1.4"/><circle cx="257.6" cy="257.6" r="1.4"/><circle cx="244" cy="269.5" r="1.4"/><circle cx="229" cy="279.5" r="1.4"/><circle cx="212.8" cy="287.5" r="1.4"/><circle cx="195.7" cy="293.3" r="1.4"/><circle cx="178" cy="296.8" r="1.4"/><circle cx="160" cy="298" r="1.4"/><circle cx="142" cy="296.8" r="1.4"/><circle cx="124.3" cy="293.3" r="1.4"/><circle cx="107.2" cy="287.5" r="1.4"/><circle cx="91" cy="279.5" r="1.4"/><circle cx="76" cy="269.5" r="1.4"/><circle cx="62.4" cy="257.6" r="1.4"/><circle cx="50.5" cy="244" r="1.4"/><circle cx="40.5" cy="229" r="1.4"/><circle cx="32.5" cy="212.8" r="1.4"/><circle cx="26.7" cy="195.7" r="1.4"/><circle cx="23.2" cy="178" r="1.4"/><circle cx="22" cy="160" r="1.4"/><circle cx="23.2" cy="142" r="1.4"/><circle cx="26.7" cy="124.3" r="1.4"/><circle cx="32.5" cy="107.2" r="1.4"/><circle cx="40.5" cy="91" r="1.4"/><circle cx="50.5" cy="76" r="1.4"/><circle cx="62.4" cy="62.4" r="1.4"/><circle cx="76" cy="50.5" r="1.4"/><circle cx="91" cy="40.5" r="1.4"/><circle cx="107.2" cy="32.5" r="1.4"/><circle cx="124.3" cy="26.7" r="1.4"/><circle cx="142" cy="23.2" r="1.4"/><circle cx="160" cy="22" r="1.4"/><circle cx="178" cy="23.2" r="1.4"/><circle cx="195.7" cy="26.7" r="1.4"/><circle cx="212.8" cy="32.5" r="1.4"/><circle cx="229" cy="40.5" r="1.4"/><circle cx="244" cy="50.5" r="1.4"/><circle cx="257.6" cy="62.4" r="1.4"/><circle cx="269.5" cy="76" r="1.4"/><circle cx="279.5" cy="91" r="1.4"/><circle cx="287.5" cy="107.2" r="1.4"/><circle cx="293.3" cy="124.3" r="1.4"/><circle cx="296.8" cy="142" r="1.4"/><g transform="translate(160 68) rotate(0)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 77.1) rotate(25.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 102.6) rotate(51.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 139.5) rotate(77.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 180.5) rotate(102.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 217.4) rotate(128.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 242.9) rotate(154.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 252) rotate(180)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 242.9) rotate(205.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 217.4) rotate(231.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 180.5) rotate(257.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 139.5) rotate(282.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 102.6) rotate(308.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 77.1) rotate(334.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 170) rotate(0)"><path d="M-8.8 -12.5L8.8 -12.5L0 0Z M0 0L8.8 12.5L-8.8 12.5Z"/><circle cx="0" cy="-17.8" r="4.5"/><path d="M1.2 -23.8L22.5 -40" stroke-width="3" fill="none"/><path d="M18.8 -42.5Q27.5 -46.2 28.8 -35Z"/><path d="M-8.8 -12.5L-7.5 -20L2.5 -22.5" fill="none" stroke-width="2"/><path d="M8.8 -12.5L11.2 -16.2L3.8 -21.2" fill="none" stroke-width="2"/><path d="M-5.2 12.5L-13.8 20L-11.2 27.5" fill="none" stroke-width="2"/><path d="M5.2 12.5L13.8 20L11.2 27.5" fill="none" stroke-width="2"/></g><circle cx="200" cy="160" r="1.1"/><circle cx="198" cy="172.4" r="1.1"/><circle cx="192.4" cy="183.5" r="1.1"/><circle cx="183.5" cy="192.4" r="1.1"/><circle cx="172.4" cy="198" r="1.1"/><circle cx="160" cy="200" r="1.1"/><circle cx="147.6" cy="198" r="1.1"/><circle cx="136.5" cy="192.4" r="1.1"/><circle cx="127.6" cy="183.5" r="1.1"/><circle cx="122" cy="172.4" r="1.1"/><circle cx="120" cy="160" r="1.1"/><circle cx="122" cy="147.6" r="1.1"/><circle cx="127.6" cy="136.5" r="1.1"/><circle cx="136.5" cy="127.6" r="1.1"/><circle cx="147.6" cy="122" r="1.1"/><circle cx="160" cy="120" r="1.1"/><circle cx="172.4" cy="122" r="1.1"/><circle cx="183.5" cy="127.6" r="1.1"/><circle cx="192.4" cy="136.5" r="1.1"/><circle cx="198" cy="147.6" r="1.1"/></svg>
+            </div>
+            <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <span class="text-xs font-semibold px-3 py-1 bg-orange-50 text-orange-800 rounded-full">Interactive Demo #3</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">Skill Gap Self-Assessment</h3>
+                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                        At each follow-up, a trainee who is still searching for work takes a short test for their programme. SkillSetu scores every skill area, and Groq AI turns the result into a personal skill-gap analysis with an upskilling plan. Anonymised gaps roll up into the district dashboard so training partners know exactly which modules to strengthen.
+                    </p>
+                    <ul class="mt-4 space-y-2 text-sm text-slate-700">
+                        <li class="flex items-start gap-2"><span class="text-saffron font-bold">✓</span><span>10 programme-specific questions, about 5 minutes</span></li>
+                        <li class="flex items-start gap-2"><span class="text-saffron font-bold">✓</span><span>Skill-wise scoring and a job-readiness level</span></li>
+                        <li class="flex items-start gap-2"><span class="text-saffron font-bold">✓</span><span>AI analysis: strengths, gaps and recommended upskilling modules</span></li>
+                        <li class="flex items-start gap-2"><span class="text-saffron font-bold">✓</span><span>Private to the trainee &mdash; never used as a hiring filter</span></li>
+                    </ul>
+                    <button type="button" data-sa-open class="mt-6 w-full sm:w-auto bg-saffron hover:bg-orange-700 text-white font-semibold px-8 py-3 rounded-lg shadow transition text-sm">
+                        Start Self-Assessment
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="saProgrammeCards">
+                    <!-- Programme cards rendered by script -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Analytics Dashboard -->
         <section id="dashboard" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-slate-200 pb-6 gap-4">
                 <div>
-                    <span class="text-xs font-semibold px-3 py-1 bg-blue-50 text-primary rounded-full">Interactive Demo #3</span>
+                    <span class="text-xs font-semibold px-3 py-1 bg-blue-50 text-primary rounded-full">Interactive Demo #4</span>
                     <h3 class="text-2xl font-bold text-slate-900 mt-2">Maharashtra Skilling Command Center</h3>
                     <p class="text-sm text-slate-600">Aggregated longitudinal metrics across districts and training providers.</p>
                 </div>
@@ -296,6 +389,8 @@
                         <option value="pune">Pune</option>
                         <option value="nagpur">Nagpur</option>
                         <option value="thane">Thane</option>
+                        <option value="sambhajinagar">Chhatrapati Sambhajinagar</option>
+                        <option value="nashik">Nashik</option>
                     </select>
                 </div>
             </div>
@@ -348,7 +443,7 @@
                     <span>✨ Automated Policy Insight Summary</span>
                 </div>
                 <p id="policyInsightText" class="text-sm sm:text-base leading-relaxed text-slate-100">
-                    "Analysis of 4,200 tracked trainees in Pune shows a <strong>38% skill-mismatch rate</strong> in CNC operator batches due to legacy machinery in partner training centers. Recommended action: Prioritize 2026 equipment upgrade grants for Pune vocational partners."
+                    "Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."
                 </p>
             </div>
 
@@ -388,7 +483,7 @@
                         </tr>
                         <tr>
                             <td class="p-4 font-medium text-slate-900">Automotive Technician</td>
-                            <td class="p-4">Aurangabad</td>
+                            <td class="p-4">Chhatrapati Sambhajinagar</td>
                             <td class="p-4">1,150</td>
                             <td class="p-4 text-teal-700 font-semibold">64%</td>
                             <td class="p-4 text-slate-500">Location Mismatch (Relocation Costs)</td>
@@ -398,9 +493,10 @@
             </div>
         </section>
 
-        <!-- 7. Why Not Just ChatGPT? / Trust & Privacy -->
+        <!-- 8. Why Not Just ChatGPT? / Trust & Privacy -->
         <section id="privacy" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="art-host bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="art warli hidden md:block absolute pointer-events-none -bottom-4 -right-4 w-36 opacity-[0.16]" aria-hidden="true"><svg class="warli-tree" viewBox="0 0 220 230" role="img" aria-label="Warli-style tree scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M110 215L110 45" stroke-width="3" fill="none"/><path d="M110 155.5L38.6 130.5" stroke-width="1.4" fill="none"/><ellipse cx="92.2" cy="146.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 146.3)"/><ellipse cx="74.3" cy="140" rx="1.6" ry="3.2" transform="rotate(-25 74.3 140)"/><ellipse cx="56.5" cy="133.8" rx="1.6" ry="3.2" transform="rotate(-25 56.5 133.8)"/><path d="M110 155.5L181.4 130.5" stroke-width="1.4" fill="none"/><ellipse cx="127.8" cy="146.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 146.3)"/><ellipse cx="145.7" cy="140" rx="1.6" ry="3.2" transform="rotate(25 145.7 140)"/><ellipse cx="163.6" cy="133.8" rx="1.6" ry="3.2" transform="rotate(25 163.6 133.8)"/><path d="M110 142.8L44.5 119.8" stroke-width="1.4" fill="none"/><ellipse cx="93.6" cy="134" rx="1.6" ry="3.2" transform="rotate(-25 93.6 134)"/><ellipse cx="77.3" cy="128.3" rx="1.6" ry="3.2" transform="rotate(-25 77.3 128.3)"/><ellipse cx="60.9" cy="122.6" rx="1.6" ry="3.2" transform="rotate(-25 60.9 122.6)"/><path d="M110 142.8L175.4 119.8" stroke-width="1.4" fill="none"/><ellipse cx="126.4" cy="134" rx="1.6" ry="3.2" transform="rotate(25 126.4 134)"/><ellipse cx="142.7" cy="128.3" rx="1.6" ry="3.2" transform="rotate(25 142.7 128.3)"/><ellipse cx="159.1" cy="122.6" rx="1.6" ry="3.2" transform="rotate(25 159.1 122.6)"/><path d="M110 130L50.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="95.1" cy="121.8" rx="1.6" ry="3.2" transform="rotate(-25 95.1 121.8)"/><ellipse cx="80.2" cy="116.6" rx="1.6" ry="3.2" transform="rotate(-25 80.2 116.6)"/><ellipse cx="65.4" cy="111.4" rx="1.6" ry="3.2" transform="rotate(-25 65.4 111.4)"/><path d="M110 130L169.5 109.2" stroke-width="1.4" fill="none"/><ellipse cx="124.9" cy="121.8" rx="1.6" ry="3.2" transform="rotate(25 124.9 121.8)"/><ellipse cx="139.8" cy="116.6" rx="1.6" ry="3.2" transform="rotate(25 139.8 116.6)"/><ellipse cx="154.6" cy="111.4" rx="1.6" ry="3.2" transform="rotate(25 154.6 111.4)"/><path d="M110 117.2L56.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="96.6" cy="109.6" rx="1.6" ry="3.2" transform="rotate(-25 96.6 109.6)"/><ellipse cx="83.2" cy="104.9" rx="1.6" ry="3.2" transform="rotate(-25 83.2 104.9)"/><ellipse cx="69.8" cy="100.2" rx="1.6" ry="3.2" transform="rotate(-25 69.8 100.2)"/><path d="M110 117.2L163.5 98.5" stroke-width="1.4" fill="none"/><ellipse cx="123.4" cy="109.6" rx="1.6" ry="3.2" transform="rotate(25 123.4 109.6)"/><ellipse cx="136.8" cy="104.9" rx="1.6" ry="3.2" transform="rotate(25 136.8 104.9)"/><ellipse cx="150.2" cy="100.2" rx="1.6" ry="3.2" transform="rotate(25 150.2 100.2)"/><path d="M110 104.5L62.4 87.8" stroke-width="1.4" fill="none"/><ellipse cx="98.1" cy="97.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 97.3)"/><ellipse cx="86.2" cy="93.2" rx="1.6" ry="3.2" transform="rotate(-25 86.2 93.2)"/><ellipse cx="74.3" cy="89" rx="1.6" ry="3.2" transform="rotate(-25 74.3 89)"/><path d="M110 104.5L157.6 87.8" stroke-width="1.4" fill="none"/><ellipse cx="121.9" cy="97.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 97.3)"/><ellipse cx="133.8" cy="93.2" rx="1.6" ry="3.2" transform="rotate(25 133.8 93.2)"/><ellipse cx="145.7" cy="89" rx="1.6" ry="3.2" transform="rotate(25 145.7 89)"/><path d="M110 91.8L68.4 77.2" stroke-width="1.4" fill="none"/><ellipse cx="99.6" cy="85.1" rx="1.6" ry="3.2" transform="rotate(-25 99.6 85.1)"/><ellipse cx="89.2" cy="81.5" rx="1.6" ry="3.2" transform="rotate(-25 89.2 81.5)"/><ellipse cx="78.8" cy="77.8" rx="1.6" ry="3.2" transform="rotate(-25 78.8 77.8)"/><path d="M110 91.8L151.6 77.2" stroke-width="1.4" fill="none"/><ellipse cx="120.4" cy="85.1" rx="1.6" ry="3.2" transform="rotate(25 120.4 85.1)"/><ellipse cx="130.8" cy="81.5" rx="1.6" ry="3.2" transform="rotate(25 130.8 81.5)"/><ellipse cx="141.2" cy="77.8" rx="1.6" ry="3.2" transform="rotate(25 141.2 77.8)"/><path d="M110 79L74.3 66.5" stroke-width="1.4" fill="none"/><ellipse cx="101.1" cy="72.9" rx="1.6" ry="3.2" transform="rotate(-25 101.1 72.9)"/><ellipse cx="92.2" cy="69.8" rx="1.6" ry="3.2" transform="rotate(-25 92.2 69.8)"/><ellipse cx="83.2" cy="66.6" rx="1.6" ry="3.2" transform="rotate(-25 83.2 66.6)"/><path d="M110 79L145.7 66.5" stroke-width="1.4" fill="none"/><ellipse cx="118.9" cy="72.9" rx="1.6" ry="3.2" transform="rotate(25 118.9 72.9)"/><ellipse cx="127.8" cy="69.8" rx="1.6" ry="3.2" transform="rotate(25 127.8 69.8)"/><ellipse cx="136.8" cy="66.6" rx="1.6" ry="3.2" transform="rotate(25 136.8 66.6)"/><path d="M110 66.2L80.2 55.8" stroke-width="1.4" fill="none"/><ellipse cx="102.6" cy="60.6" rx="1.6" ry="3.2" transform="rotate(-25 102.6 60.6)"/><ellipse cx="95.1" cy="58" rx="1.6" ry="3.2" transform="rotate(-25 95.1 58)"/><ellipse cx="87.7" cy="55.4" rx="1.6" ry="3.2" transform="rotate(-25 87.7 55.4)"/><path d="M110 66.2L139.8 55.8" stroke-width="1.4" fill="none"/><ellipse cx="117.4" cy="60.6" rx="1.6" ry="3.2" transform="rotate(25 117.4 60.6)"/><ellipse cx="124.9" cy="58" rx="1.6" ry="3.2" transform="rotate(25 124.9 58)"/><ellipse cx="132.3" cy="55.4" rx="1.6" ry="3.2" transform="rotate(25 132.3 55.4)"/><path d="M110 53.5L86.2 45.2" stroke-width="1.4" fill="none"/><ellipse cx="104" cy="48.4" rx="1.6" ry="3.2" transform="rotate(-25 104 48.4)"/><ellipse cx="98.1" cy="46.3" rx="1.6" ry="3.2" transform="rotate(-25 98.1 46.3)"/><ellipse cx="92.2" cy="44.3" rx="1.6" ry="3.2" transform="rotate(-25 92.2 44.3)"/><path d="M110 53.5L133.8 45.2" stroke-width="1.4" fill="none"/><ellipse cx="116" cy="48.4" rx="1.6" ry="3.2" transform="rotate(25 116 48.4)"/><ellipse cx="121.9" cy="46.3" rx="1.6" ry="3.2" transform="rotate(25 121.9 46.3)"/><ellipse cx="127.8" cy="44.3" rx="1.6" ry="3.2" transform="rotate(25 127.8 44.3)"/><g transform="translate(50 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-12 -4L-16 -12" fill="none" stroke-width="1.6"/><path d="M7 -10L12 -4L16 -12" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><g transform="translate(172 191) rotate(0)"><path d="M-7 -10L7 -10L0 0Z M0 0L7 10L-7 10Z"/><circle cx="0" cy="-14.2" r="3.6"/><path d="M-7 -10L-11 -3L-9 3" fill="none" stroke-width="1.6"/><path d="M7 -10L13 -5L19 -2" fill="none" stroke-width="1.6"/><path d="M-4.2 10L-9 17L-8 23" fill="none" stroke-width="1.6"/><path d="M4.2 10L10 16L12 22" fill="none" stroke-width="1.6"/></g><path d="M10 217L210 217" stroke-width="2" fill="none"/></svg></div>
                 <span class="text-xs font-bold uppercase tracking-wider text-primary">Preempting Judge Objections</span>
                 <h3 class="text-xl font-bold text-slate-900 mt-2 mb-4">"Why not just use ChatGPT?"</h3>
                 <p class="text-sm text-slate-600 leading-relaxed mb-4">
@@ -411,7 +507,8 @@
                 </p>
             </div>
 
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="art-host bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="art warli hidden md:block absolute pointer-events-none top-5 right-6 w-14 opacity-[0.18]" aria-hidden="true"><svg class="warli-sun" viewBox="0 0 80 80" role="img" aria-label="Warli-style sun" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="16"/><path d="M59 40L66 40" stroke-width="1.6" fill="none"/><path d="M57.6 47.3L64 49.9" stroke-width="1.6" fill="none"/><path d="M53.4 53.4L58.4 58.4" stroke-width="1.6" fill="none"/><path d="M47.3 57.6L49.9 64" stroke-width="1.6" fill="none"/><path d="M40 59L40 66" stroke-width="1.6" fill="none"/><path d="M32.7 57.6L30.1 64" stroke-width="1.6" fill="none"/><path d="M26.6 53.4L21.6 58.4" stroke-width="1.6" fill="none"/><path d="M22.4 47.3L16 49.9" stroke-width="1.6" fill="none"/><path d="M21 40L14 40" stroke-width="1.6" fill="none"/><path d="M22.4 32.7L16 30.1" stroke-width="1.6" fill="none"/><path d="M26.6 26.6L21.6 21.6" stroke-width="1.6" fill="none"/><path d="M32.7 22.4L30.1 16" stroke-width="1.6" fill="none"/><path d="M40 21L40 14" stroke-width="1.6" fill="none"/><path d="M47.3 22.4L49.9 16" stroke-width="1.6" fill="none"/><path d="M53.4 26.6L58.4 21.6" stroke-width="1.6" fill="none"/><path d="M57.6 32.7L64 30.1" stroke-width="1.6" fill="none"/></svg></div>
                 <span class="text-xs font-bold uppercase tracking-wider text-secondary">Privacy-First Architecture</span>
                 <h3 class="text-xl font-bold text-slate-900 mt-2 mb-4">Data Privacy & Real-World Messiness</h3>
                 <ul class="space-y-3 text-sm text-slate-600">
@@ -431,8 +528,10 @@
             </div>
         </section>
 
-        <!-- 8. Roadmap Strip -->
-        <section class="bg-slate-900 text-white p-8 rounded-2xl shadow-lg">
+        <!-- 9. Roadmap Strip -->
+        <section class="art-host bg-slate-900 text-white p-8 rounded-2xl shadow-lg">
+            <div class="art text-white hidden md:block absolute pointer-events-none -bottom-4 right-6 w-56 opacity-[0.16]" aria-hidden="true"><svg class="warli-village" viewBox="0 0 310 270" role="img" aria-label="Warli-style village scene" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="62" cy="52" r="16"/><path d="M81 52L88 52" stroke-width="1.6" fill="none"/><path d="M79.6 59.3L86 61.9" stroke-width="1.6" fill="none"/><path d="M75.4 65.4L80.4 70.4" stroke-width="1.6" fill="none"/><path d="M69.3 69.6L71.9 76" stroke-width="1.6" fill="none"/><path d="M62 71L62 78" stroke-width="1.6" fill="none"/><path d="M54.7 69.6L52.1 76" stroke-width="1.6" fill="none"/><path d="M48.6 65.4L43.6 70.4" stroke-width="1.6" fill="none"/><path d="M44.4 59.3L38 61.9" stroke-width="1.6" fill="none"/><path d="M43 52L36 52" stroke-width="1.6" fill="none"/><path d="M44.4 44.7L38 42.1" stroke-width="1.6" fill="none"/><path d="M48.6 38.6L43.6 33.6" stroke-width="1.6" fill="none"/><path d="M54.7 34.4L52.1 28" stroke-width="1.6" fill="none"/><path d="M62 33L62 26" stroke-width="1.6" fill="none"/><path d="M69.3 34.4L71.9 28" stroke-width="1.6" fill="none"/><path d="M75.4 38.6L80.4 33.6" stroke-width="1.6" fill="none"/><path d="M79.6 44.7L86 42.1" stroke-width="1.6" fill="none"/><path d="M150 250L150 80" stroke-width="3" fill="none"/><path d="M150 190.5L78.6 165.5" stroke-width="1.4" fill="none"/><ellipse cx="132.2" cy="181.3" rx="1.6" ry="3.2" transform="rotate(-25 132.2 181.3)"/><ellipse cx="114.3" cy="175" rx="1.6" ry="3.2" transform="rotate(-25 114.3 175)"/><ellipse cx="96.5" cy="168.8" rx="1.6" ry="3.2" transform="rotate(-25 96.5 168.8)"/><path d="M150 190.5L221.4 165.5" stroke-width="1.4" fill="none"/><ellipse cx="167.8" cy="181.3" rx="1.6" ry="3.2" transform="rotate(25 167.8 181.3)"/><ellipse cx="185.7" cy="175" rx="1.6" ry="3.2" transform="rotate(25 185.7 175)"/><ellipse cx="203.6" cy="168.8" rx="1.6" ry="3.2" transform="rotate(25 203.6 168.8)"/><path d="M150 177.8L84.5 154.8" stroke-width="1.4" fill="none"/><ellipse cx="133.6" cy="169" rx="1.6" ry="3.2" transform="rotate(-25 133.6 169)"/><ellipse cx="117.3" cy="163.3" rx="1.6" ry="3.2" transform="rotate(-25 117.3 163.3)"/><ellipse cx="100.9" cy="157.6" rx="1.6" ry="3.2" transform="rotate(-25 100.9 157.6)"/><path d="M150 177.8L215.4 154.8" stroke-width="1.4" fill="none"/><ellipse cx="166.4" cy="169" rx="1.6" ry="3.2" transform="rotate(25 166.4 169)"/><ellipse cx="182.7" cy="163.3" rx="1.6" ry="3.2" transform="rotate(25 182.7 163.3)"/><ellipse cx="199.1" cy="157.6" rx="1.6" ry="3.2" transform="rotate(25 199.1 157.6)"/><path d="M150 165L90.5 144.2" stroke-width="1.4" fill="none"/><ellipse cx="135.1" cy="156.8" rx="1.6" ry="3.2" transform="rotate(-25 135.1 156.8)"/><ellipse cx="120.2" cy="151.6" rx="1.6" ry="3.2" transform="rotate(-25 120.2 151.6)"/><ellipse cx="105.4" cy="146.4" rx="1.6" ry="3.2" transform="rotate(-25 105.4 146.4)"/><path d="M150 165L209.5 144.2" stroke-width="1.4" fill="none"/><ellipse cx="164.9" cy="156.8" rx="1.6" ry="3.2" transform="rotate(25 164.9 156.8)"/><ellipse cx="179.8" cy="151.6" rx="1.6" ry="3.2" transform="rotate(25 179.8 151.6)"/><ellipse cx="194.6" cy="146.4" rx="1.6" ry="3.2" transform="rotate(25 194.6 146.4)"/><path d="M150 152.2L96.5 133.5" stroke-width="1.4" fill="none"/><ellipse cx="136.6" cy="144.6" rx="1.6" ry="3.2" transform="rotate(-25 136.6 144.6)"/><ellipse cx="123.2" cy="139.9" rx="1.6" ry="3.2" transform="rotate(-25 123.2 139.9)"/><ellipse cx="109.8" cy="135.2" rx="1.6" ry="3.2" transform="rotate(-25 109.8 135.2)"/><path d="M150 152.2L203.5 133.5" stroke-width="1.4" fill="none"/><ellipse cx="163.4" cy="144.6" rx="1.6" ry="3.2" transform="rotate(25 163.4 144.6)"/><ellipse cx="176.8" cy="139.9" rx="1.6" ry="3.2" transform="rotate(25 176.8 139.9)"/><ellipse cx="190.2" cy="135.2" rx="1.6" ry="3.2" transform="rotate(25 190.2 135.2)"/><path d="M150 139.5L102.4 122.8" stroke-width="1.4" fill="none"/><ellipse cx="138.1" cy="132.3" rx="1.6" ry="3.2" transform="rotate(-25 138.1 132.3)"/><ellipse cx="126.2" cy="128.2" rx="1.6" ry="3.2" transform="rotate(-25 126.2 128.2)"/><ellipse cx="114.3" cy="124" rx="1.6" ry="3.2" transform="rotate(-25 114.3 124)"/><path d="M150 139.5L197.6 122.8" stroke-width="1.4" fill="none"/><ellipse cx="161.9" cy="132.3" rx="1.6" ry="3.2" transform="rotate(25 161.9 132.3)"/><ellipse cx="173.8" cy="128.2" rx="1.6" ry="3.2" transform="rotate(25 173.8 128.2)"/><ellipse cx="185.7" cy="124" rx="1.6" ry="3.2" transform="rotate(25 185.7 124)"/><path d="M150 126.8L108.4 112.2" stroke-width="1.4" fill="none"/><ellipse cx="139.6" cy="120.1" rx="1.6" ry="3.2" transform="rotate(-25 139.6 120.1)"/><ellipse cx="129.2" cy="116.5" rx="1.6" ry="3.2" transform="rotate(-25 129.2 116.5)"/><ellipse cx="118.8" cy="112.8" rx="1.6" ry="3.2" transform="rotate(-25 118.8 112.8)"/><path d="M150 126.8L191.6 112.2" stroke-width="1.4" fill="none"/><ellipse cx="160.4" cy="120.1" rx="1.6" ry="3.2" transform="rotate(25 160.4 120.1)"/><ellipse cx="170.8" cy="116.5" rx="1.6" ry="3.2" transform="rotate(25 170.8 116.5)"/><ellipse cx="181.2" cy="112.8" rx="1.6" ry="3.2" transform="rotate(25 181.2 112.8)"/><path d="M150 114L114.3 101.5" stroke-width="1.4" fill="none"/><ellipse cx="141.1" cy="107.9" rx="1.6" ry="3.2" transform="rotate(-25 141.1 107.9)"/><ellipse cx="132.2" cy="104.8" rx="1.6" ry="3.2" transform="rotate(-25 132.2 104.8)"/><ellipse cx="123.2" cy="101.6" rx="1.6" ry="3.2" transform="rotate(-25 123.2 101.6)"/><path d="M150 114L185.7 101.5" stroke-width="1.4" fill="none"/><ellipse cx="158.9" cy="107.9" rx="1.6" ry="3.2" transform="rotate(25 158.9 107.9)"/><ellipse cx="167.8" cy="104.8" rx="1.6" ry="3.2" transform="rotate(25 167.8 104.8)"/><ellipse cx="176.8" cy="101.6" rx="1.6" ry="3.2" transform="rotate(25 176.8 101.6)"/><path d="M150 101.2L120.2 90.8" stroke-width="1.4" fill="none"/><ellipse cx="142.6" cy="95.6" rx="1.6" ry="3.2" transform="rotate(-25 142.6 95.6)"/><ellipse cx="135.1" cy="93" rx="1.6" ry="3.2" transform="rotate(-25 135.1 93)"/><ellipse cx="127.7" cy="90.4" rx="1.6" ry="3.2" transform="rotate(-25 127.7 90.4)"/><path d="M150 101.2L179.8 90.8" stroke-width="1.4" fill="none"/><ellipse cx="157.4" cy="95.6" rx="1.6" ry="3.2" transform="rotate(25 157.4 95.6)"/><ellipse cx="164.9" cy="93" rx="1.6" ry="3.2" transform="rotate(25 164.9 93)"/><ellipse cx="172.3" cy="90.4" rx="1.6" ry="3.2" transform="rotate(25 172.3 90.4)"/><path d="M150 88.5L126.2 80.2" stroke-width="1.4" fill="none"/><ellipse cx="144.1" cy="83.4" rx="1.6" ry="3.2" transform="rotate(-25 144.1 83.4)"/><ellipse cx="138.1" cy="81.3" rx="1.6" ry="3.2" transform="rotate(-25 138.1 81.3)"/><ellipse cx="132.2" cy="79.3" rx="1.6" ry="3.2" transform="rotate(-25 132.2 79.3)"/><path d="M150 88.5L173.8 80.2" stroke-width="1.4" fill="none"/><ellipse cx="155.9" cy="83.4" rx="1.6" ry="3.2" transform="rotate(25 155.9 83.4)"/><ellipse cx="161.9" cy="81.3" rx="1.6" ry="3.2" transform="rotate(25 161.9 81.3)"/><ellipse cx="167.8" cy="79.3" rx="1.6" ry="3.2" transform="rotate(25 167.8 79.3)"/><path d="M215 250L215 211.5L285 211.5L285 250" fill="none" stroke-width="1.8"/><path d="M209 211.5L250 180L291 211.5Z"/><path d="M245 250L245 237L255 237L255 250" fill="none" stroke-width="1.6"/><g transform="translate(60 224) rotate(0)"><path d="M-8.4 -12L8.4 -12L0 0Z M0 0L8.4 12L-8.4 12Z"/><circle cx="0" cy="-17" r="4.3"/><path d="M-8.4 -12L-13.2 -3.6L-10.8 3.6" fill="none" stroke-width="1.9"/><path d="M8.4 -12L15.6 -6L22.8 -2.4" fill="none" stroke-width="1.9"/><path d="M-5 12L-10.8 20.4L-9.6 27.6" fill="none" stroke-width="1.9"/><path d="M5 12L12 19.2L14.4 26.4" fill="none" stroke-width="1.9"/></g><g transform="translate(205 228) rotate(0)"><path d="M-7.4 -10.5L7.4 -10.5L0 0Z M0 0L7.4 10.5L-7.4 10.5Z"/><circle cx="0" cy="-14.9" r="3.8"/><path d="M-7.4 -10.5L-12.6 -4.2L-16.8 -12.6" fill="none" stroke-width="1.7"/><path d="M7.4 -10.5L12.6 -4.2L16.8 -12.6" fill="none" stroke-width="1.7"/><path d="M-4.4 10.5L-9.5 17.9L-8.4 24.1" fill="none" stroke-width="1.7"/><path d="M4.4 10.5L10.5 16.8L12.6 23.1" fill="none" stroke-width="1.7"/></g><path d="M10 252L300 252" stroke-width="2" fill="none"/><path d="M14 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M32 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M50 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M68 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M86 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M104 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M122 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M140 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M158 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M176 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M194 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M212 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M230 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M248 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M266 262l6 -6 6 6" stroke-width="1.4" fill="none"/><path d="M284 262l6 -6 6 6" stroke-width="1.4" fill="none"/></svg></div>
+            <div class="art text-white hidden md:block absolute pointer-events-none -top-20 -left-20 w-64 opacity-[0.07]" aria-hidden="true"><svg class="warli-dance" viewBox="0 0 320 320" role="img" aria-label="Warli-style tarpa dance circle" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="298" cy="160" r="1.4"/><circle cx="296.8" cy="178" r="1.4"/><circle cx="293.3" cy="195.7" r="1.4"/><circle cx="287.5" cy="212.8" r="1.4"/><circle cx="279.5" cy="229" r="1.4"/><circle cx="269.5" cy="244" r="1.4"/><circle cx="257.6" cy="257.6" r="1.4"/><circle cx="244" cy="269.5" r="1.4"/><circle cx="229" cy="279.5" r="1.4"/><circle cx="212.8" cy="287.5" r="1.4"/><circle cx="195.7" cy="293.3" r="1.4"/><circle cx="178" cy="296.8" r="1.4"/><circle cx="160" cy="298" r="1.4"/><circle cx="142" cy="296.8" r="1.4"/><circle cx="124.3" cy="293.3" r="1.4"/><circle cx="107.2" cy="287.5" r="1.4"/><circle cx="91" cy="279.5" r="1.4"/><circle cx="76" cy="269.5" r="1.4"/><circle cx="62.4" cy="257.6" r="1.4"/><circle cx="50.5" cy="244" r="1.4"/><circle cx="40.5" cy="229" r="1.4"/><circle cx="32.5" cy="212.8" r="1.4"/><circle cx="26.7" cy="195.7" r="1.4"/><circle cx="23.2" cy="178" r="1.4"/><circle cx="22" cy="160" r="1.4"/><circle cx="23.2" cy="142" r="1.4"/><circle cx="26.7" cy="124.3" r="1.4"/><circle cx="32.5" cy="107.2" r="1.4"/><circle cx="40.5" cy="91" r="1.4"/><circle cx="50.5" cy="76" r="1.4"/><circle cx="62.4" cy="62.4" r="1.4"/><circle cx="76" cy="50.5" r="1.4"/><circle cx="91" cy="40.5" r="1.4"/><circle cx="107.2" cy="32.5" r="1.4"/><circle cx="124.3" cy="26.7" r="1.4"/><circle cx="142" cy="23.2" r="1.4"/><circle cx="160" cy="22" r="1.4"/><circle cx="178" cy="23.2" r="1.4"/><circle cx="195.7" cy="26.7" r="1.4"/><circle cx="212.8" cy="32.5" r="1.4"/><circle cx="229" cy="40.5" r="1.4"/><circle cx="244" cy="50.5" r="1.4"/><circle cx="257.6" cy="62.4" r="1.4"/><circle cx="269.5" cy="76" r="1.4"/><circle cx="279.5" cy="91" r="1.4"/><circle cx="287.5" cy="107.2" r="1.4"/><circle cx="293.3" cy="124.3" r="1.4"/><circle cx="296.8" cy="142" r="1.4"/><g transform="translate(160 68) rotate(0)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 77.1) rotate(25.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 102.6) rotate(51.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 139.5) rotate(77.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(249.7 180.5) rotate(102.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(231.9 217.4) rotate(128.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(199.9 242.9) rotate(154.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 252) rotate(180)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 242.9) rotate(205.7)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 217.4) rotate(231.4)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 180.5) rotate(257.1)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(70.3 139.5) rotate(282.9)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(88.1 102.6) rotate(308.6)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(120.1 77.1) rotate(334.3)"><path d="M-8 -11.5L8 -11.5L0 0Z M0 0L8 11.5L-8 11.5Z"/><circle cx="0" cy="-16.3" r="4.1"/><path d="M-8 -11.5L-14.9 -6.9L-20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M8 -11.5L14.9 -6.9L20.7 -9.2" fill="none" stroke-width="1.8"/><path d="M-4.8 11.5L-12.6 18.4L-10.3 25.3" fill="none" stroke-width="1.8"/><path d="M4.8 11.5L12.6 18.4L10.3 25.3" fill="none" stroke-width="1.8"/></g><g transform="translate(160 170) rotate(0)"><path d="M-8.8 -12.5L8.8 -12.5L0 0Z M0 0L8.8 12.5L-8.8 12.5Z"/><circle cx="0" cy="-17.8" r="4.5"/><path d="M1.2 -23.8L22.5 -40" stroke-width="3" fill="none"/><path d="M18.8 -42.5Q27.5 -46.2 28.8 -35Z"/><path d="M-8.8 -12.5L-7.5 -20L2.5 -22.5" fill="none" stroke-width="2"/><path d="M8.8 -12.5L11.2 -16.2L3.8 -21.2" fill="none" stroke-width="2"/><path d="M-5.2 12.5L-13.8 20L-11.2 27.5" fill="none" stroke-width="2"/><path d="M5.2 12.5L13.8 20L11.2 27.5" fill="none" stroke-width="2"/></g><circle cx="200" cy="160" r="1.1"/><circle cx="198" cy="172.4" r="1.1"/><circle cx="192.4" cy="183.5" r="1.1"/><circle cx="183.5" cy="192.4" r="1.1"/><circle cx="172.4" cy="198" r="1.1"/><circle cx="160" cy="200" r="1.1"/><circle cx="147.6" cy="198" r="1.1"/><circle cx="136.5" cy="192.4" r="1.1"/><circle cx="127.6" cy="183.5" r="1.1"/><circle cx="122" cy="172.4" r="1.1"/><circle cx="120" cy="160" r="1.1"/><circle cx="122" cy="147.6" r="1.1"/><circle cx="127.6" cy="136.5" r="1.1"/><circle cx="136.5" cy="127.6" r="1.1"/><circle cx="147.6" cy="122" r="1.1"/><circle cx="160" cy="120" r="1.1"/><circle cx="172.4" cy="122" r="1.1"/><circle cx="183.5" cy="127.6" r="1.1"/><circle cx="192.4" cy="136.5" r="1.1"/><circle cx="198" cy="147.6" r="1.1"/></svg></div>
             <div class="max-w-3xl mx-auto text-center mb-8">
                 <span class="text-xs font-semibold px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full">Production Scalability</span>
                 <h3 class="text-2xl font-bold mt-2">Roadmap to Statewide Deployment</h3>
@@ -456,8 +555,14 @@
 
     </main>
 
-    <!-- 9. Footer -->
-    <footer class="bg-white border-t border-slate-200 py-12">
+    <!-- Fort skyline (Maharashtra hill forts) -->
+    <div class="text-slate-200 bg-surface" aria-hidden="true">
+        <div class="h-16 sm:h-24 overflow-hidden"><svg class="fort-skyline block w-full h-full" preserveAspectRatio="xMidYMax slice" viewBox="0 0 800 120" role="img" aria-label="Maharashtra hill fort skyline" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L0 96Q60 70 120 84L150 76L150 58L162 58L162 52L174 52L174 58L186 58L186 52L198 52L198 58L210 58L210 70L262 70L262 50L276 50L276 44L290 44L290 50L304 50L304 44L318 44L318 50L332 50L332 70L380 70L380 54L394 54L394 48L406 48L406 54L420 54L420 72Q470 66 520 82Q600 70 680 90Q740 80 800 94L800 120Z"/><path d="M297 44L297 12" stroke-width="2" fill="none"/><path d="M298 12L324 20L298 28Z" fill="#ea580c" stroke="#ea580c"/></svg></div>
+    </div>
+    <div class="paithani-strip" aria-hidden="true"></div>
+
+    <!-- 10. Footer -->
+    <footer class="bg-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">
@@ -473,6 +578,22 @@
             </div>
         </div>
     </footer>
+
+    <!-- Self-Assessment Modal -->
+    <div id="saModal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="saTitle">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-sa-close></div>
+        <div class="relative bg-white w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[88vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden">
+            <div class="paithani-strip shrink-0" aria-hidden="true"></div>
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-200 shrink-0">
+                <div>
+                    <h2 id="saTitle" class="text-lg font-bold text-slate-900">Skill Gap Self-Assessment</h2>
+                    <p id="saSubtitle" class="text-xs text-slate-500">SkillSetu &bull; Longitudinal follow-up</p>
+                </div>
+                <button type="button" data-sa-close class="w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 text-2xl leading-none flex items-center justify-center" aria-label="Close self-assessment">&times;</button>
+            </div>
+            <div id="saBody" class="px-5 sm:px-6 py-5 overflow-y-auto"></div>
+        </div>
+    </div>
 
     <!-- Embedded Interactive Script connected to FastAPI & Groq Backend -->
     <script>
@@ -494,6 +615,39 @@
                 e.preventDefault();
 
                 const successBox = document.getElementById('regSuccess');
+                const successText = document.getElementById('regSuccessText');
+                const scheduleBox = document.getElementById('regSchedule');
+
+                const name = (document.getElementById('regName')?.value || '').trim();
+                const programme = document.getElementById('regProgramme')?.value || '';
+                const district = document.getElementById('regDistrict')?.value || '';
+
+                // Consent timestamp + 30 / 90 / 180-day follow-up schedule
+                const now = new Date();
+                const fmt = (d) => d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                if (successText) {
+                    successText.textContent =
+                        `${name || 'Trainee'} (${programme}, ${district}) opted in on ` +
+                        `${fmt(now)} at ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}. ` +
+                        'Follow-up check-ins scheduled:';
+                }
+
+                if (scheduleBox) {
+                    scheduleBox.replaceChildren(...[30, 90, 180].map((days) => {
+                        const due = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+                        const cell = document.createElement('div');
+                        cell.className = 'bg-white border border-teal-200 rounded-lg py-2';
+                        const label = document.createElement('p');
+                        label.className = 'text-[11px] font-bold uppercase text-teal-700';
+                        label.textContent = `Day ${days}`;
+                        const date = document.createElement('p');
+                        date.className = 'text-sm font-semibold text-slate-900';
+                        date.textContent = fmt(due);
+                        cell.append(label, date);
+                        return cell;
+                    }));
+                }
 
                 if (successBox) {
                     successBox.classList.remove('hidden');
@@ -760,7 +914,7 @@
                             'Pune',
                             'Nagpur',
                             'Thane',
-                            'Aurangabad',
+                            'Chh. Sambhajinagar',
                             'Nashik'
                         ],
 
@@ -868,73 +1022,537 @@
 
         // ============================================================
         // 5. District Filter Interactivity
+        //    Highlights the selected district's bar and updates the insight.
         // ============================================================
         const districtFilter =
             document.getElementById('districtFilter');
 
+        const DISTRICT_VIEWS = {
+            all: {
+                index: -1,
+                insight: '"Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."'
+            },
+            pune: {
+                index: 0,
+                insight: '"Analysis of Pune district cohorts shows a <strong>38% skill-mismatch rate</strong> in industrial manufacturing courses. Immediate curriculum upgrade recommended."'
+            },
+            nagpur: {
+                index: 1,
+                insight: '"Nagpur district exhibits high tech adoption with a <strong>76% web developer placement rate</strong>. Recommend expanding IT incubation linkages."'
+            },
+            thane: {
+                index: 2,
+                insight: '"Thane leads the state at <strong>82% employment conversion</strong>, driven by healthcare general duty placements with strong local demand. Recommend scaling healthcare batches with hospital partners."'
+            },
+            sambhajinagar: {
+                index: 3,
+                insight: '"Chhatrapati Sambhajinagar records the <strong>lowest conversion at 61%</strong>. Automotive trainees cite relocation costs as the main barrier. Recommend travel and relocation support linked to placement offers."'
+            },
+            nashik: {
+                index: 4,
+                insight: '"Nashik stands at <strong>70% employment conversion</strong>, with rising self-employment among trainees. Recommend linking graduates to MUDRA-style micro-credit and entrepreneurship mentoring."'
+            }
+        };
+
+        const BAR_COLOR = '#1e3a8a';
+        const BAR_MUTED = '#cbd5e1';
+
         if (districtFilter && conversionChart) {
+            districtFilter.addEventListener('change', function(e) {
+                const view = DISTRICT_VIEWS[e.target.value] || DISTRICT_VIEWS.all;
+                const count = conversionChart.data.labels.length;
 
-            districtFilter.addEventListener(
-                'change',
-                function(e) {
+                conversionChart.data.datasets[0].backgroundColor =
+                    view.index < 0
+                        ? BAR_COLOR
+                        : Array.from({ length: count }, (_, i) => (i === view.index ? BAR_COLOR : BAR_MUTED));
 
-                    const val = e.target.value;
-
-                    const policyInsightText =
-                        document.getElementById('policyInsightText');
-
-
-                    if (val === 'pune') {
-
-                        conversionChart.data.datasets[0].data = [
-                            58,
-                            58,
-                            58,
-                            58,
-                            58
-                        ];
-
-                        if (policyInsightText) {
-                            policyInsightText.innerHTML =
-                                '"Analysis of Pune district cohorts shows a <strong>38% skill-mismatch rate</strong> in industrial manufacturing courses. Immediate curriculum upgrade recommended."';
-                        }
-
-                    } else if (val === 'nagpur') {
-
-                        conversionChart.data.datasets[0].data = [
-                            74,
-                            74,
-                            74,
-                            74,
-                            74
-                        ];
-
-                        if (policyInsightText) {
-                            policyInsightText.innerHTML =
-                                '"Nagpur district exhibits high tech adoption with a <strong>76% web developer placement rate</strong>. Recommend expanding IT incubation linkages."';
-                        }
-
-                    } else {
-
-                        conversionChart.data.datasets[0].data = [
-                            68,
-                            74,
-                            82,
-                            61,
-                            70
-                        ];
-
-                        if (policyInsightText) {
-                            policyInsightText.innerHTML =
-                                '"Statewide aggregated analysis indicates a <strong>68.4% overall employment conversion</strong> at 90 days. Wage mismatch remains the primary barrier in tier-2 districts."';
-                        }
-                    }
-
-                    conversionChart.update();
+                const policyInsightText = document.getElementById('policyInsightText');
+                if (policyInsightText) {
+                    policyInsightText.innerHTML = view.insight;
                 }
-            );
+
+                conversionChart.update();
+            });
         }
 
+
+        // ============================================================
+        // 6. Skill Gap Self-Assessment (modal)
+        //    Fixed question bank per programme -> client-side scoring
+        //    -> Groq analysis via backend, with an offline fallback.
+        // ============================================================
+        const SA_BANK = {
+            cnc: {
+                name: 'CNC Machine Operator',
+                icon: '⚙️',
+                skills: ['CNC Programming', 'Machine Safety', 'Measurement & Quality', 'Machining Fundamentals'],
+                modules: {
+                    'CNC Programming': 'G & M code programming lab on a CNC simulator (20 hrs)',
+                    'Machine Safety': 'Shop-floor safety and dry-run / single-block practice (8 hrs)',
+                    'Measurement & Quality': 'Precision measurement with micrometers and verniers (12 hrs)',
+                    'Machining Fundamentals': 'Cutting speed, feed and tool offset setup workshop (12 hrs)'
+                },
+                questions: [
+                    { q: 'Which G-code is used for rapid positioning of the tool?', o: ['G01', 'G00', 'G02', 'G03'], a: 1, s: 'CNC Programming' },
+                    { q: 'G02 commands which type of tool movement?', o: ['Linear feed', 'Counter-clockwise arc', 'Clockwise arc', 'Dwell (pause)'], a: 2, s: 'CNC Programming' },
+                    { q: 'What does M03 do?', o: ['Starts the spindle clockwise', 'Stops the spindle', 'Turns coolant on', 'Ends the program'], a: 0, s: 'CNC Programming' },
+                    { q: 'G90 sets the machine to which programming mode?', o: ['Incremental', 'Inch units', 'Metric units', 'Absolute'], a: 3, s: 'CNC Programming' },
+                    { q: 'Before running a new program for the first time, the safest practice is to:', o: ['Run at full rapid to save time', 'Do a dry run / single-block run with reduced feed override', 'Remove the machine guards for a better view', 'Skip the tool offset check'], a: 1, s: 'Machine Safety' },
+                    { q: 'The emergency stop button on a CNC machine is usually:', o: ['A green push button', 'A key switch', 'A red mushroom-head button on a yellow background', 'A blue toggle switch'], a: 2, s: 'Machine Safety' },
+                    { q: 'The typical least count of a standard metric outside micrometer is:', o: ['0.01 mm', '0.1 mm', '0.5 mm', '1 mm'], a: 0, s: 'Measurement & Quality' },
+                    { q: 'Which instrument is best to check the internal diameter of a bore on the shop floor?', o: ['Steel rule', 'Try square', 'Bore gauge / inside micrometer', 'Feeler gauge'], a: 2, s: 'Measurement & Quality' },
+                    { q: 'For the same cutting speed, if the tool diameter decreases, the spindle RPM should:', o: ['Decrease', 'Increase', 'Stay the same', 'Drop to zero'], a: 1, s: 'Machining Fundamentals' },
+                    { q: 'A tool length offset tells the machine:', o: ['The spindle speed', 'The coolant pressure', 'The part material', 'The distance from the spindle reference to the tool tip'], a: 3, s: 'Machining Fundamentals' }
+                ]
+            },
+            web: {
+                name: 'Full Stack Web Developer',
+                icon: '💻',
+                skills: ['HTML & CSS', 'JavaScript', 'Backend & APIs', 'Databases & Git'],
+                modules: {
+                    'HTML & CSS': 'Responsive layouts with semantic HTML, Flexbox and Grid (15 hrs)',
+                    'JavaScript': 'Modern JavaScript: types, arrays and async code (25 hrs)',
+                    'Backend & APIs': 'Building REST APIs with HTTP methods and status codes (20 hrs)',
+                    'Databases & Git': 'SQL fundamentals and Git branching workflow (15 hrs)'
+                },
+                questions: [
+                    { q: 'Which HTML element is the semantic choice for a block of navigation links?', o: ['<div>', '<section>', '<nav>', '<span>'], a: 2, s: 'HTML & CSS' },
+                    { q: 'Which CSS declaration turns an element into a flex container?', o: ['display: flex;', 'position: flex;', 'float: flex;', 'flex: container;'], a: 0, s: 'HTML & CSS' },
+                    { q: 'In JavaScript, what does typeof null return?', o: ['"null"', '"undefined"', '"number"', '"object"'], a: 3, s: 'JavaScript' },
+                    { q: 'What is the difference between === and == in JavaScript?', o: ['No difference', '=== compares without type conversion', '=== only works on numbers', '== is always faster and safer'], a: 1, s: 'JavaScript' },
+                    { q: 'What does [1, 2, 3].map(x => x * 2) return?', o: ['[2, 4, 6]', '6', '[1, 2, 3]', '12'], a: 0, s: 'JavaScript' },
+                    { q: 'What does HTTP status code 404 mean?', o: ['Server error', 'Unauthorized', 'Not Found', 'Created'], a: 2, s: 'Backend & APIs' },
+                    { q: 'In a REST API, which HTTP method is normally used to create a new resource?', o: ['GET', 'POST', 'DELETE', 'HEAD'], a: 1, s: 'Backend & APIs' },
+                    { q: 'Which SQL clause filters rows based on a condition?', o: ['ORDER BY', 'GROUP BY', 'JOIN', 'WHERE'], a: 3, s: 'Databases & Git' },
+                    { q: 'A primary key in a table:', o: ['Uniquely identifies each row', 'Encrypts the table', 'Stores passwords', 'Must be a text column'], a: 0, s: 'Databases & Git' },
+                    { q: 'Which command creates a new Git branch and switches to it?', o: ['git merge feature', 'git init feature', 'git checkout -b feature', 'git push feature'], a: 2, s: 'Databases & Git' }
+                ]
+            },
+            health: {
+                name: 'Healthcare General Duty Assistant',
+                icon: '🩺',
+                skills: ['Vital Signs', 'Infection Control', 'Patient Care', 'Emergency Response'],
+                modules: {
+                    'Vital Signs': 'Recording pulse, temperature and blood pressure accurately (10 hrs)',
+                    'Infection Control': 'Hand hygiene and biomedical waste segregation as per BMW Rules 2016 (8 hrs)',
+                    'Patient Care': 'Patient positioning, dignity and bedside care practice (12 hrs)',
+                    'Emergency Response': 'Basic Life Support (BLS) and first-response drills (8 hrs)'
+                },
+                questions: [
+                    { q: 'The normal resting pulse rate for an adult is:', o: ['30–50 beats per minute', '60–100 beats per minute', '110–140 beats per minute', '150–180 beats per minute'], a: 1, s: 'Vital Signs' },
+                    { q: 'Normal body temperature is approximately:', o: ['35°C', '39°C', '37°C (98.6°F)', '41°C'], a: 2, s: 'Vital Signs' },
+                    { q: 'Which blood pressure reading is the commonly used reference for a healthy adult?', o: ['120/80 mmHg', '160/110 mmHg', '90/40 mmHg', '200/100 mmHg'], a: 0, s: 'Vital Signs' },
+                    { q: 'The single most effective way to prevent the spread of infection in a hospital is:', o: ['Wearing a mask at all times', 'Opening windows', 'Using antibiotics', 'Hand hygiene'], a: 3, s: 'Infection Control' },
+                    { q: 'WHO recommends washing hands with soap and water for about:', o: ['5 seconds', '40–60 seconds', '2–3 seconds', '5 minutes'], a: 1, s: 'Infection Control' },
+                    { q: 'Under India\'s Bio-Medical Waste Management Rules 2016, used needles and sharps go into a:', o: ['Yellow bag', 'Black bag', 'Red bag', 'White (translucent) puncture-proof container'], a: 3, s: 'Infection Control' },
+                    { q: 'To prevent bedsores, a bedridden patient should be repositioned about every:', o: ['2 hours', '12 hours', '24 hours', 'Only when they ask'], a: 0, s: 'Patient Care' },
+                    { q: 'Before starting any procedure on a patient, you should first:', o: ['Start quickly to save time', 'Ask the family to leave the hospital', 'Identify the patient and explain the procedure', 'Record the vitals afterwards'], a: 2, s: 'Patient Care' },
+                    { q: 'The recommended rate of chest compressions in adult CPR is:', o: ['40–60 per minute', '60–80 per minute', '100–120 per minute', '150–180 per minute'], a: 2, s: 'Emergency Response' },
+                    { q: 'If a patient falls in the ward, what should you do first?', o: ['Lift them back to bed immediately', 'Check for responsiveness and injury, and call for help', 'Give them water', 'Leave and fill in a report'], a: 1, s: 'Emergency Response' }
+                ]
+            },
+            auto: {
+                name: 'Automotive Service Technician',
+                icon: '🔧',
+                skills: ['Engine Systems', 'Electrical Systems', 'Brakes & Safety', 'Service Practice'],
+                modules: {
+                    'Engine Systems': 'Petrol and diesel engine operation and diagnosis (20 hrs)',
+                    'Electrical Systems': 'Automotive electrics, battery and multimeter diagnosis (15 hrs)',
+                    'Brakes & Safety': 'Hydraulic brake service and safe vehicle lifting (10 hrs)',
+                    'Service Practice': 'Periodic maintenance, lubricants and torque specifications (12 hrs)'
+                },
+                questions: [
+                    { q: 'What is the correct order of strokes in a four-stroke engine?', o: ['Intake, Compression, Power, Exhaust', 'Compression, Intake, Exhaust, Power', 'Power, Intake, Compression, Exhaust', 'Intake, Power, Compression, Exhaust'], a: 0, s: 'Engine Systems' },
+                    { q: 'The main function of a spark plug is to:', o: ['Cool the engine', 'Ignite the air-fuel mixture in a petrol engine', 'Filter the fuel', 'Charge the battery'], a: 1, s: 'Engine Systems' },
+                    { q: 'How is the fuel ignited in a diesel engine?', o: ['By a spark plug', 'By a glow from the exhaust', 'By the heat of compression', 'By the battery directly'], a: 2, s: 'Engine Systems' },
+                    { q: 'The nominal voltage of a standard car battery is:', o: ['6 V', '24 V', '48 V', '12 V'], a: 3, s: 'Electrical Systems' },
+                    { q: 'Which tool is used to measure voltage and check continuity?', o: ['Torque wrench', 'Multimeter', 'Feeler gauge', 'Hydrometer'], a: 1, s: 'Electrical Systems' },
+                    { q: 'When disconnecting a car battery, which terminal should be removed first?', o: ['Negative (–)', 'Positive (+)', 'Either one', 'Both together'], a: 0, s: 'Electrical Systems' },
+                    { q: 'A soft or spongy brake pedal most commonly indicates:', o: ['New brake pads', 'Low tyre pressure', 'Air in the brake lines', 'A weak battery'], a: 2, s: 'Brakes & Safety' },
+                    { q: 'Before working under a car raised on a jack, you must:', o: ['Start the engine', 'Support the car on axle stands', 'Release the handbrake', 'Remove the wheels'], a: 1, s: 'Brakes & Safety' },
+                    { q: 'In an engine oil grade such as 10W-30, the "W" stands for:', o: ['Weight', 'Water-resistant', 'Wear', 'Winter'], a: 3, s: 'Service Practice' },
+                    { q: 'Wheel nuts should be tightened:', o: ['In a star (criss-cross) pattern to the specified torque', 'One after another around the circle as tight as possible', 'Only by hand', 'With an impact gun at maximum setting'], a: 0, s: 'Service Practice' }
+                ]
+            }
+        };
+
+        const SA_DISTRICTS = ['Pune', 'Nagpur', 'Thane', 'Chhatrapati Sambhajinagar', 'Nashik'];
+        const SA_TIMEOUT_MS = 25000;
+
+        const saModal = document.getElementById('saModal');
+        const saBody = document.getElementById('saBody');
+        const saSubtitle = document.getElementById('saSubtitle');
+        let saState = null;
+        let saLastFocus = null;
+        let saRequestId = 0;
+
+        const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => (
+            { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+        ));
+
+        function saReadiness(percent) {
+            if (percent >= 75) return { label: 'Job-Ready', tone: 'text-teal-800 bg-teal-100 border-teal-200', ring: '#0f766e' };
+            if (percent >= 50) return { label: 'Nearly Job-Ready', tone: 'text-amber-800 bg-amber-100 border-amber-200', ring: '#d97706' };
+            return { label: 'Needs Upskilling', tone: 'text-red-800 bg-red-100 border-red-200', ring: '#dc2626' };
+        }
+
+        function saOpen(programmeKey) {
+            if (!saModal || !saBody) return;
+            saLastFocus = document.activeElement;
+            saState = {
+                programme: SA_BANK[programmeKey] ? programmeKey : 'cnc',
+                name: '',
+                district: SA_DISTRICTS[0],
+                index: 0,
+                answers: []
+            };
+            saModal.classList.remove('hidden');
+            document.body.classList.add('sa-open');
+            saRenderStart();
+        }
+
+        function saClose() {
+            if (!saModal) return;
+            saRequestId++; // ignore any analysis still in flight
+            saModal.classList.add('hidden');
+            document.body.classList.remove('sa-open');
+            if (saLastFocus && typeof saLastFocus.focus === 'function') saLastFocus.focus();
+        }
+
+        function saFocusFirst() {
+            const target = saBody.querySelector('[data-sa-autofocus]') || saBody.querySelector('button, input, select');
+            if (target) target.focus();
+        }
+
+        // ---------- Step 1: candidate details ----------
+        function saRenderStart() {
+            saSubtitle.textContent = 'Step 1 of 3 • Your details';
+            const programmeOptions = Object.entries(SA_BANK).map(([key, p]) =>
+                `<label class="sa-option flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-slate-300">
+                    <input type="radio" name="saProgramme" value="${key}" class="sr-only" ${key === saState.programme ? 'checked' : ''}>
+                    <span class="text-xl" aria-hidden="true">${p.icon}</span>
+                    <span class="text-sm font-semibold text-slate-800">${esc(p.name)}</span>
+                </label>`
+            ).join('');
+
+            saBody.innerHTML = `
+                <form id="saStartForm" class="space-y-5">
+                    <p class="text-sm text-slate-600">Answer 10 quick questions from your training programme. You will get a skill-wise score and an AI-generated plan to close your skill gaps.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="saName" class="block text-xs font-semibold text-slate-700 uppercase mb-1">Your Name (optional)</label>
+                            <input id="saName" type="text" maxlength="60" value="${esc(saState.name)}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm" placeholder="e.g. Sneha Jadhav">
+                        </div>
+                        <div>
+                            <label for="saDistrict" class="block text-xs font-semibold text-slate-700 uppercase mb-1">District</label>
+                            <select id="saDistrict" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                                ${SA_DISTRICTS.map((d) => `<option ${d === saState.district ? 'selected' : ''}>${esc(d)}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <fieldset>
+                        <legend class="block text-xs font-semibold text-slate-700 uppercase mb-2">Your Training Programme</legend>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${programmeOptions}</div>
+                    </fieldset>
+                    <div class="flex items-start gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <span aria-hidden="true">🔒</span>
+                        <span>Your individual result is private to you. Only anonymised, aggregated skill gaps are shared with training partners to improve courses.</span>
+                    </div>
+                    <button type="submit" data-sa-autofocus class="w-full bg-saffron hover:bg-orange-700 text-white font-semibold py-3 rounded-lg shadow transition text-sm">Begin Assessment &rarr;</button>
+                </form>`;
+
+            document.getElementById('saStartForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saState.name = document.getElementById('saName').value.trim();
+                saState.district = document.getElementById('saDistrict').value;
+                const picked = saBody.querySelector('input[name="saProgramme"]:checked');
+                saState.programme = picked ? picked.value : saState.programme;
+                saState.index = 0;
+                saState.answers = new Array(SA_BANK[saState.programme].questions.length).fill(null);
+                saRenderQuestion();
+            });
+            saFocusFirst();
+        }
+
+        // ---------- Step 2: questions ----------
+        function saRenderQuestion() {
+            const bank = SA_BANK[saState.programme];
+            const total = bank.questions.length;
+            const i = saState.index;
+            const item = bank.questions[i];
+            const selected = saState.answers[i];
+            saSubtitle.textContent = `Step 2 of 3 • ${bank.name}`;
+
+            saBody.innerHTML = `
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+                        <span>Question ${i + 1} of ${total}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-primary">${esc(item.s)}</span>
+                    </div>
+                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-5" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${i + 1}">
+                        <div class="h-full bg-saffron rounded-full transition-all" style="width:${((i + 1) / total) * 100}%"></div>
+                    </div>
+                    <fieldset>
+                        <legend class="text-base font-semibold text-slate-900 mb-4">${esc(item.q)}</legend>
+                        <div class="space-y-2">
+                            ${item.o.map((opt, k) => `
+                                <label class="sa-option flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-slate-300">
+                                    <input type="radio" name="saAnswer" value="${k}" class="h-4 w-4 accent-[#1e3a8a]" ${selected === k ? 'checked' : ''}>
+                                    <span class="text-sm text-slate-800">${esc(opt)}</span>
+                                </label>`).join('')}
+                        </div>
+                    </fieldset>
+                    <div class="flex items-center justify-between gap-3 mt-6">
+                        <button type="button" id="saPrev" class="px-4 py-2.5 text-sm font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 ${i === 0 ? 'invisible' : ''}">&larr; Back</button>
+                        <button type="button" id="saNext" class="px-6 py-2.5 text-sm font-semibold rounded-lg bg-primary hover:bg-blue-900 text-white shadow transition disabled:opacity-40 disabled:cursor-not-allowed" ${selected === null ? 'disabled' : ''}>
+                            ${i === total - 1 ? 'Submit &amp; Analyse' : 'Next &rarr;'}
+                        </button>
+                    </div>
+                </div>`;
+
+            const nextBtn = document.getElementById('saNext');
+            saBody.querySelectorAll('input[name="saAnswer"]').forEach((input) => {
+                input.addEventListener('change', () => {
+                    saState.answers[i] = Number(input.value);
+                    nextBtn.disabled = false;
+                });
+            });
+            document.getElementById('saPrev').addEventListener('click', () => {
+                if (saState.index > 0) { saState.index--; saRenderQuestion(); }
+            });
+            nextBtn.addEventListener('click', () => {
+                if (saState.answers[i] === null) return;
+                if (i < total - 1) { saState.index++; saRenderQuestion(); }
+                else { saSubmit(); }
+            });
+            const first = saBody.querySelector('input[name="saAnswer"]:checked') || saBody.querySelector('input[name="saAnswer"]');
+            if (first) first.focus();
+        }
+
+        // ---------- Scoring ----------
+        function saScore() {
+            const bank = SA_BANK[saState.programme];
+            const bySkill = {};
+            bank.skills.forEach((s) => { bySkill[s] = { skill: s, correct: 0, total: 0 }; });
+            const wrong = [];
+            bank.questions.forEach((item, k) => {
+                const row = bySkill[item.s];
+                row.total++;
+                if (saState.answers[k] === item.a) row.correct++;
+                else wrong.push({ question: item.q, skill: item.s, chosen: item.o[saState.answers[k]], correct: item.o[item.a] });
+            });
+            const skills = Object.values(bySkill).map((r) => ({ ...r, percent: Math.round((r.correct / r.total) * 100) }));
+            const correct = skills.reduce((n, r) => n + r.correct, 0);
+            const total = bank.questions.length;
+            return { skills, correct, total, percent: Math.round((correct / total) * 100), wrong };
+        }
+
+        // ---------- Offline analysis (used if the AI service is unreachable) ----------
+        function saLocalAnalysis(score) {
+            const bank = SA_BANK[saState.programme];
+            const strong = score.skills.filter((s) => s.percent >= 75).map((s) => s.skill);
+            const weak = [...score.skills].filter((s) => s.percent < 75).sort((a, b) => a.percent - b.percent);
+            const level = saReadiness(score.percent).label;
+            const who = saState.name || 'The candidate';
+            return {
+                summary: weak.length === 0
+                    ? `${who} answered ${score.correct} of ${score.total} correctly and shows solid command of every core ${bank.name} skill area. The profile is ready for placement drives in ${saState.district}.`
+                    : `${who} answered ${score.correct} of ${score.total} correctly (${level}). The biggest gap is in ${weak[0].skill} (${weak[0].percent}%), which is likely to hold back placement in ${bank.name} roles in ${saState.district}.`,
+                strengths: strong.length ? strong.map((s) => `${s}: answered confidently`) : ['Completed the full assessment — a good base to build on'],
+                skill_gaps: weak.length ? weak.map((s) => `${s}: ${s.correct} of ${s.total} correct`) : ['No major gaps detected'],
+                recommended_modules: weak.length ? weak.slice(0, 3).map((s) => bank.modules[s.skill]) : ['Advanced on-the-job apprenticeship to build work experience'],
+                next_step: weak.length
+                    ? `Complete the ${weak[0].skill} module, then retake this assessment at the next follow-up.`
+                    : 'Register for the next district placement drive and keep your profile updated.'
+            };
+        }
+
+        function saIsValidAnalysis(data) {
+            return data && typeof data === 'object' && typeof data.summary === 'string' && data.summary.trim()
+                && ['strengths', 'skill_gaps', 'recommended_modules'].every((k) => Array.isArray(data[k]))
+                && typeof data.next_step === 'string';
+        }
+
+        // ---------- Step 3: submit + analyse ----------
+        async function saSubmit() {
+            const bank = SA_BANK[saState.programme];
+            const score = saScore();
+            const requestId = ++saRequestId;
+            saSubtitle.textContent = 'Step 3 of 3 • Analysing';
+            saBody.innerHTML = `
+                <div class="py-12 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-saffron mb-3"></div>
+                    <p class="text-sm font-semibold text-slate-800">Groq AI is analysing your skill profile…</p>
+                    <p class="text-xs text-slate-500 mt-1">This usually takes a few seconds.</p>
+                </div>`;
+
+            let analysis = null;
+            let source = 'ai';
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), SA_TIMEOUT_MS);
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v1/assessment/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        candidate_name: saState.name || null,
+                        programme: bank.name,
+                        district: saState.district,
+                        correct_answers: score.correct,
+                        total_questions: score.total,
+                        skill_scores: score.skills.map(({ skill, correct, total }) => ({ skill, correct, total })),
+                        missed_topics: score.wrong.map((w) => `${w.skill}: ${w.question}`).slice(0, 10)
+                    }),
+                    signal: controller.signal
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (!saIsValidAnalysis(data)) throw new Error('Invalid analysis payload');
+                analysis = data;
+            } catch (err) {
+                console.warn('SkillSetu self-assessment: using offline analysis.', err);
+                analysis = saLocalAnalysis(score);
+                source = 'offline';
+            } finally {
+                clearTimeout(timer);
+            }
+
+            if (requestId !== saRequestId) return; // modal closed or restarted meanwhile
+            saRenderResult(score, analysis, source);
+        }
+
+        function saList(items, marker) {
+            const clean = (items || []).filter((x) => typeof x === 'string' && x.trim()).slice(0, 5);
+            if (!clean.length) return '<p class="text-sm text-slate-500">—</p>';
+            return `<ul class="space-y-1.5">${clean.map((x) => `<li class="flex items-start gap-2 text-sm text-slate-700"><span class="shrink-0">${marker}</span><span>${esc(x)}</span></li>`).join('')}</ul>`;
+        }
+
+        function saRenderResult(score, analysis, source) {
+            const bank = SA_BANK[saState.programme];
+            const level = saReadiness(score.percent);
+            saSubtitle.textContent = `Result • ${bank.name} • ${saState.district}`;
+
+            const bars = score.skills.map((s) => {
+                const color = s.percent >= 75 ? 'bg-teal-600' : s.percent >= 50 ? 'bg-amber-500' : 'bg-red-500';
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span>${esc(s.skill)}</span><span>${s.correct}/${s.total} &bull; ${s.percent}%</span>
+                        </div>
+                        <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full ${color} rounded-full" style="width:${Math.max(s.percent, 3)}%"></div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            const review = score.wrong.length
+                ? score.wrong.map((w) => `
+                    <li class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                        <p class="text-sm font-medium text-slate-900">${esc(w.question)}</p>
+                        <p class="text-xs text-red-700 mt-1">Your answer: ${esc(w.chosen)}</p>
+                        <p class="text-xs text-teal-700">Correct answer: ${esc(w.correct)}</p>
+                    </li>`).join('')
+                : '<li class="text-sm text-slate-600">All answers correct — excellent!</li>';
+
+            const sourceBadge = source === 'ai'
+                ? '<span class="text-[11px] font-mono text-slate-500">Analysis by Groq AI &bull; openai/gpt-oss-120b</span>'
+                : '<span class="text-[11px] font-mono text-slate-500">AI service busy &bull; SkillSetu offline analysis</span>';
+
+            saBody.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-5">
+                        <div class="shrink-0 w-28 h-28 rounded-full grid place-items-center" style="background: conic-gradient(${level.ring} ${score.percent * 3.6}deg, #e2e8f0 0deg);">
+                            <div class="w-[92px] h-[92px] rounded-full bg-white grid place-items-center text-center">
+                                <div>
+                                    <p class="text-2xl font-extrabold text-slate-900 leading-none">${score.percent}%</p>
+                                    <p class="text-[11px] text-slate-500 mt-1">${score.correct}/${score.total} correct</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <span class="inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded border ${level.tone}">${level.label}</span>
+                            <h3 class="text-lg font-bold text-slate-900 mt-2">${esc(saState.name ? saState.name + '’s skill profile' : 'Your skill profile')}</h3>
+                            <p class="text-sm text-slate-600 mt-1">${esc(analysis.summary)}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">${bars}</div>
+
+                    <div class="p-5 bg-orange-50/60 border border-orange-200 rounded-xl space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs font-bold uppercase tracking-wider text-orange-900 bg-orange-100 px-2.5 py-1 rounded">✨ AI Skill-Gap Analysis</span>
+                            ${sourceBadge}
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div><h4 class="text-xs font-bold uppercase text-slate-500 mb-2">Strengths</h4>${saList(analysis.strengths, '✅')}</div>
+                            <div><h4 class="text-xs font-bold uppercase text-slate-500 mb-2">Skill Gaps</h4>${saList(analysis.skill_gaps, '⚠️')}</div>
+                        </div>
+                        <div><h4 class="text-xs font-bold uppercase text-slate-500 mb-2">Recommended Upskilling Modules</h4>${saList(analysis.recommended_modules, '📘')}</div>
+                        <div class="p-3 bg-white border border-orange-200 rounded-lg">
+                            <p class="text-xs font-bold uppercase text-slate-500 mb-1">Next Step</p>
+                            <p class="text-sm font-medium text-slate-900">${esc(analysis.next_step)}</p>
+                        </div>
+                    </div>
+
+                    <details class="group">
+                        <summary class="cursor-pointer text-sm font-semibold text-primary select-none">Review answers (${score.wrong.length} to revisit)</summary>
+                        <ul class="mt-3 space-y-2">${review}</ul>
+                    </details>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="button" id="saRetake" class="flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50">Retake / Change Programme</button>
+                        <button type="button" data-sa-close data-sa-autofocus class="flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg bg-primary hover:bg-blue-900 text-white shadow">Done</button>
+                    </div>
+                </div>`;
+
+            document.getElementById('saRetake').addEventListener('click', saRenderStart);
+            saBody.scrollTop = 0;
+            saFocusFirst();
+        }
+
+        // ---------- Programme cards on the page ----------
+        const saCards = document.getElementById('saProgrammeCards');
+        if (saCards) {
+            saCards.innerHTML = Object.entries(SA_BANK).map(([key, p]) => `
+                <button type="button" data-sa-open="${key}" class="civic-card text-left p-4 bg-surface border border-slate-200 rounded-xl hover:border-orange-300">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl" aria-hidden="true">${p.icon}</span>
+                        <span class="font-bold text-slate-900 text-sm">${esc(p.name)}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 mt-3">
+                        ${p.skills.map((s) => `<span class="text-[11px] px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">${esc(s)}</span>`).join('')}
+                    </div>
+                    <p class="text-xs font-semibold text-saffron mt-3">Take test &rarr;</p>
+                </button>`).join('');
+        }
+
+        // ---------- Open / close wiring (event delegation) ----------
+        document.addEventListener('click', (e) => {
+            const opener = e.target.closest('[data-sa-open]');
+            if (opener) {
+                e.preventDefault();
+                saOpen(opener.getAttribute('data-sa-open'));
+                return;
+            }
+            if (e.target.closest('[data-sa-close]')) {
+                saClose();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!saModal || saModal.classList.contains('hidden')) return;
+            if (e.key === 'Escape') { saClose(); return; }
+            if (e.key === 'Tab') { // keep focus inside the dialog
+                const focusables = saModal.querySelectorAll('button:not([disabled]), input, select, summary, [href]');
+                const visible = Array.from(focusables).filter((el) => el.offsetParent !== null && !el.classList.contains('sr-only'));
+                if (!visible.length) return;
+                const first = visible[0];
+                const last = visible[visible.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
     });
 </script>
 </body>

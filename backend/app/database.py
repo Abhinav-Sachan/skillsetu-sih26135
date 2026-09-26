@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.orm import declarative_base, sessionmaker
 import os
 
 # Use PostgreSQL if provided via environment variable, otherwise fallback to local SQLite for zero-setup demo
