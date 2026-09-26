@@ -68,6 +68,8 @@ def register_trainee(data: TraineeRegistrationSchema, db: Session = Depends(get_
             "full_name": data.full_name,
             "programme": data.programme,
             "district": data.district,
+            "gender": data.gender,
+            "age_group": data.age_group,
             "consent_status": "Opted-In",
             "consent_timestamp": consent_at.isoformat(),
         },

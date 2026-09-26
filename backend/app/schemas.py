@@ -12,6 +12,8 @@ class TraineeRegistrationSchema(BaseModel):
     phone_number: str = Field(..., pattern=r"^[6-9]\d{9}$", examples=["9876543210"])
     programme: str = Field(..., min_length=1, max_length=120, examples=["CNC Machine Operator (PMKVY)"])
     district: str = Field(..., min_length=1, max_length=60, examples=["Pune"])
+    gender: Optional[str] = Field(None, max_length=30, examples=["Female"])
+    age_group: Optional[str] = Field(None, max_length=10, examples=["18-24"])
     consent_given: bool = Field(..., examples=[True])
 
 

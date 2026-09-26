@@ -263,6 +263,27 @@
                         </div>
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="regGender" class="block text-xs font-semibold text-slate-700 uppercase mb-1">Gender</label>
+                            <select id="regGender" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                                <option>Female</option>
+                                <option>Male</option>
+                                <option>Transgender</option>
+                                <option>Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="regAge" class="block text-xs font-semibold text-slate-700 uppercase mb-1">Age Group</label>
+                            <select id="regAge" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none text-sm bg-white">
+                                <option>18–24</option>
+                                <option>25–29</option>
+                                <option>30–35</option>
+                                <option>36+</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
                         <label class="flex items-start space-x-3 cursor-pointer">
                             <input type="checkbox" id="consentToggle" required class="mt-1 h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded">
@@ -434,6 +455,30 @@
                     <div class="h-64 relative flex items-center justify-center">
                         <canvas id="outcomeDonut"></canvas>
                     </div>
+                </div>
+            </div>
+
+            <!-- Demographic Outcomes -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-surface p-6 rounded-xl border border-slate-200">
+                    <div class="flex items-baseline justify-between gap-2 mb-4">
+                        <h4 class="font-bold text-slate-900 text-sm">Employment Conversion by Gender</h4>
+                        <span class="text-[11px] text-slate-500">90-day, % of trainees</span>
+                    </div>
+                    <div class="h-44 relative">
+                        <canvas id="genderChart" aria-label="Employment conversion by gender: Male 73%, Female 62%, Transgender 54%" role="img"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-3"><strong class="text-slate-900">Transgender trainees convert least (54%); women trail men by 11 points.</strong> Top reason cited: distance to the workplace. Recommend inclusive placement partners and hostel support.</p>
+                </div>
+                <div class="bg-surface p-6 rounded-xl border border-slate-200">
+                    <div class="flex items-baseline justify-between gap-2 mb-4">
+                        <h4 class="font-bold text-slate-900 text-sm">Employment Conversion by Age Group</h4>
+                        <span class="text-[11px] text-slate-500">90-day, % of trainees</span>
+                    </div>
+                    <div class="h-44 relative">
+                        <canvas id="ageChart" aria-label="Employment conversion by age group: 18–24 66%, 25–29 74%, 30–35 70%, 36 and above 58%" role="img"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-3"><strong class="text-slate-900">Trainees aged 36+ convert least (58%).</strong> Recommend recognition of prior learning (RPL) and short refresher modules for older workers.</p>
                 </div>
             </div>
 
@@ -621,6 +666,8 @@
                 const name = (document.getElementById('regName')?.value || '').trim();
                 const programme = document.getElementById('regProgramme')?.value || '';
                 const district = document.getElementById('regDistrict')?.value || '';
+                const gender = document.getElementById('regGender')?.value || '';
+                const ageGroup = document.getElementById('regAge')?.value || '';
 
                 // Consent timestamp + 30 / 90 / 180-day follow-up schedule
                 const now = new Date();
@@ -628,7 +675,7 @@
 
                 if (successText) {
                     successText.textContent =
-                        `${name || 'Trainee'} (${programme}, ${district}) opted in on ` +
+                        `${name || 'Trainee'} (${programme}, ${district} · ${gender}, ${ageGroup}) opted in on ` +
                         `${fmt(now)} at ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}. ` +
                         'Follow-up check-ins scheduled:';
                 }
@@ -1018,6 +1065,65 @@
                 }
             );
         }
+
+
+        // ============================================================
+        // 4b. Demographic Outcome Charts (gender & age group)
+        // ============================================================
+        function demographicChart(id, labels, values, shares) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const lowest = Math.min(...values);
+            new Chart(el.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Employment conversion %',
+                        data: values,
+                        backgroundColor: values.map((v) => (v === lowest ? '#ea580c' : '#1e3a8a')),
+                        borderRadius: 4,
+                        borderSkipped: 'start',
+                        barThickness: 18
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.parsed.x}% employed at 90 days`,
+                                afterLabel: (ctx) => ` ${shares[ctx.dataIndex]}% of enrolled trainees`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, max: 100, ticks: { callback: (v) => v + '%' }, grid: { color: '#e2e8f0' } },
+                        y: { grid: { display: false } }
+                    }
+                },
+                plugins: [{
+                    id: 'valueLabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx } = chart;
+                        ctx.save();
+                        ctx.font = '600 11px Inter, sans-serif';
+                        ctx.fillStyle = '#334155';
+                        ctx.textBaseline = 'middle';
+                        chart.getDatasetMeta(0).data.forEach((bar, i) => {
+                            ctx.fillText(values[i] + '%', bar.x + 6, bar.y);
+                        });
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        demographicChart('genderChart', ['Male', 'Female', 'Transgender'], [73, 62, 54], [58, 40, 2]);
+        demographicChart('ageChart', ['18–24', '25–29', '30–35', '36+'], [66, 74, 70, 58], [45, 30, 15, 10]);
 
 
         // ============================================================
